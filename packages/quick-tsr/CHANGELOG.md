@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [9.1.0-release51.0](https://github.com/nrkno/sofie-timeline-state-resolver/compare/9.0.0-release50.5...9.1.0-release51.0) (2023-08-25)
+
+
+### Features
+
+* BBC GSAAS Support ([828fe2d](https://github.com/nrkno/sofie-timeline-state-resolver/commit/828fe2d4e6df04c9ff1daeeb42e05e2ad2084955))
+
+
+
 ## [9.0.0-release50.5](https://github.com/nrkno/sofie-timeline-state-resolver/compare/9.0.0-release50.4...9.0.0-release50.5) (2023-07-03)
 
 **Note:** Version bump only for package quick-tsr
