@@ -1,16 +1,36 @@
-import { DeviceType, Mapping, MappingCasparCGType, SomeMappingCasparCG } from 'timeline-state-resolver'
+import { DeviceType, Mapping, MappingBbcGsaasType, SomeMappingBbcGsaas} from 'timeline-state-resolver'
 import { literal } from 'timeline-state-resolver/dist/devices/device'
 import type { TSRInput } from '../src'
 
 export const input: TSRInput = {
 	mappings: {
-		casparLayer0: literal<Mapping<SomeMappingCasparCG>>({
-			device: DeviceType.CASPARCG,
-			deviceId: 'caspar0',
+		gsaasLoad0: literal<Mapping<SomeMappingBbcGsaas>>({
+			device: DeviceType.BBC_GSAAS,
+			deviceId: 'gsaas0',
 			options: {
-				mappingType: MappingCasparCGType.Layer,
-				channel: 1,
-				layer: 10,
+				mappingType: MappingBbcGsaasType.Channel,
+				group: 'sofieTest',
+				channel: 'L3',
+			},
+		}),
+		gsaasZone0: literal<Mapping<SomeMappingBbcGsaas>>({
+			device: DeviceType.BBC_GSAAS,
+			deviceId: 'gsaas0',
+			options: {
+				mappingType: MappingBbcGsaasType.Zone,
+				group: 'sofieTest',
+				channel: 'L3',
+				zone: 'mainStrap'
+			},
+		}),
+		gsaasZone1: literal<Mapping<SomeMappingBbcGsaas>>({
+			device: DeviceType.BBC_GSAAS,
+			deviceId: 'gsaas0',
+			options: {
+				mappingType: MappingBbcGsaasType.Zone,
+				group: 'sofieTest',
+				channel: 'L3',
+				zone: 'locatorLeft'
 			},
 		}),
 	},

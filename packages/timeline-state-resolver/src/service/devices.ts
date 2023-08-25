@@ -4,6 +4,7 @@ import { Device } from './device'
 import { HTTPSendDevice } from '../integrations/httpSend'
 import { ShotokuDevice } from '../integrations/shotoku'
 import { HTTPWatcherDevice } from '../integrations/httpWatcher'
+import { BBCGSAASDevice } from '../integrations/bbcGsaas'
 
 export interface DeviceEntry {
 	deviceClass: new () => Device<any, any, any>
@@ -17,9 +18,16 @@ export type ImplementedServiceDeviceTypes =
 	| DeviceType.HTTPWATCHER
 	| DeviceType.OSC
 	| DeviceType.SHOTOKU
+	| DeviceType.BBC_GSAAS
 
 // TODO - move all device implementations here and remove the old Device classes
 export const DevicesDict: Record<ImplementedServiceDeviceTypes, DeviceEntry> = {
+	[DeviceType.BBC_GSAAS]: {
+		deviceClass: BBCGSAASDevice,
+		canConnect: false,
+		deviceName: (deviceId: string) => 'BBC-GSSAS' + deviceId,
+		executionMode: () => 'sequential',
+	},
 	[DeviceType.HTTPSEND]: {
 		deviceClass: HTTPSendDevice,
 		canConnect: false,

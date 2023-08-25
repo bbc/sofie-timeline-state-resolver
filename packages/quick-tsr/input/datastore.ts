@@ -4,9 +4,5 @@ import { TSRInput } from '../src'
 
 export const input: TSRInput = {
 	datastore: literal<Datastore>({
-		scale: {
-			value: 0.7,
-			modified: Date.now(),
-		},
 	}),
 }

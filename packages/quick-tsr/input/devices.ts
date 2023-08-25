@@ -3,11 +3,11 @@ import { DeviceType } from 'timeline-state-resolver'
 
 export const input: TSRInput = {
 	devices: {
-		caspar0: {
-			type: DeviceType.CASPARCG,
+		gsaas0: {
+			type: DeviceType.BBC_GSAAS,
 			options: {
-				host: '127.0.0.1',
-				port: 5250,
+				brokerUrl: 'https://gsaas.graphics.int.tools.bbc.co.uk',
+				apiKey: 'bzQS07BexGygtrrh1J9PhYwFLaBIQtb7',
 			},
 		},
 	},

@@ -21,6 +21,7 @@ import { TimelineContentVMixAny } from './vmix'
 import { TimelineContentOBSAny } from './obs'
 import { TimelineContentTriCasterAny } from './tricaster'
 import { ITranslatableMessage } from './translations'
+import { TimelineContentBBCGSAASAny } from './bbcGsaas'
 
 export * from './abstract'
 export * from './atem'
@@ -43,6 +44,7 @@ export * from './obs'
 export * from './tricaster'
 export * from './telemetrics'
 export * from './multiOsc'
+export * from './bbcGsaas'
 
 export * from './device'
 export * from './mapping'
@@ -84,6 +86,7 @@ export enum DeviceType {
 	TELEMETRICS = 'TELEMETRICS',
 	TRICASTER = 'TRICASTER',
 	MULTI_OSC = 'MULTI_OSC',
+	BBC_GSAAS = 'BBC_GSAAS',
 }
 
 export type TSRTimelineKeyframe<TContent> = Timeline.TimelineKeyframe<TContent>
@@ -143,6 +146,7 @@ export type TSRTimelineContent =
 	| TimelineContentVIZMSEAny
 	| TimelineContentTelemetricsAny
 	| TimelineContentTriCasterAny
+	| TimelineContentBBCGSAASAny
 
 /**
  * A simple key value store that can be referred to from the timeline objects

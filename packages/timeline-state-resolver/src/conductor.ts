@@ -25,6 +25,7 @@ import {
 	DeviceOptionsShotoku,
 	DeviceOptionsHTTPSend,
 	DeviceOptionsHTTPWatcher,
+	DeviceOptionsBBCGSAAS,
 } from 'timeline-state-resolver-types'
 
 import { DoOnTime } from './devices/doOnTime'
@@ -663,7 +664,8 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 			case DeviceType.HTTPSEND:
 			case DeviceType.HTTPWATCHER:
 			case DeviceType.OSC:
-			case DeviceType.SHOTOKU: {
+			case DeviceType.SHOTOKU:
+			case DeviceType.BBC_GSAAS: {
 				ensureIsImplementedAsService(deviceOptions.type)
 
 				// presumably this device is implemented in the new service handler
@@ -1583,6 +1585,7 @@ export type DeviceOptionsAnyInternal =
 	| DeviceOptionsTelemetrics
 	| DeviceOptionsTriCasterInternal
 	| DeviceOptionsMultiOSC
+	| DeviceOptionsBBCGSAAS
 
 function removeParentFromState(
 	o: Timeline.TimelineState<TSRTimelineContent>
