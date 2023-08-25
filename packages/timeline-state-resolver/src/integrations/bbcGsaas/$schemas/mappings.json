@@ -1,0 +1,50 @@
+{
+	"$schema": "../../../$schemas/mapping-schema.json",
+	"default": "zone",
+	"mappings": {
+		"zone": {
+			"type": "object",
+			"properties": {
+				"group": {
+					"type": "string",
+					"ui:title": "Group",
+					"ui:description": "The GSAAS Group to use",
+					"ui:summaryTitle": "Group"
+				},
+				"channel": {
+					"type": "string",
+					"ui:title": "Channel",
+					"ui:description": "The GSAAS Channel to use",
+					"ui:summaryTitle": "Channel"
+				},
+				"zone": {
+					"type": "string",
+					"ui:title": "Zone",
+					"ui:description": "The GSAAS Zone to use",
+					"ui:summaryTitle": "Zone"
+				}
+			},
+			"required": ["group", "channel", "zone"],
+			"additionalProperties": false
+		},
+		"channel": {
+			"type": "object",
+			"properties": {
+				"group": {
+					"type": "string",
+					"ui:title": "Group",
+					"ui:description": "The GSAAS Group to use",
+					"ui:summaryTitle": "Group"
+				},
+				"channel": {
+					"type": "string",
+					"ui:title": "Channel",
+					"ui:description": "The GSAAS Channel to use",
+					"ui:summaryTitle": "Channel"
+				}
+			},
+			"required": ["group", "channel"],
+			"additionalProperties": false
+		}
+	}
+}

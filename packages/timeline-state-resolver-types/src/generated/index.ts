@@ -12,6 +12,9 @@ import { SomeMappingAbstract } from './abstract'
 export * from './atem'
 import { SomeMappingAtem } from './atem'
 
+export * from './bbcGsaas'
+import { SomeMappingBbcGsaas } from './bbcGsaas'
+
 export * from './casparCG'
 import { SomeMappingCasparCG } from './casparCG'
 
@@ -75,6 +78,7 @@ import { SomeMappingVmix } from './vmix'
 export type TSRMappingOptions =
 	| SomeMappingAbstract
 	| SomeMappingAtem
+	| SomeMappingBbcGsaas
 	| SomeMappingCasparCG
 	| SomeMappingHttpSend
 	| SomeMappingHttpWatcher

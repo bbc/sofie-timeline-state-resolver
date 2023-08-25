@@ -1,0 +1,45 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "BBC GSAAS Options",
+	"type": "object",
+	"properties": {
+		"brokerUrl": {
+			"type": "string",
+			"description": "GSAAS Broker URL",
+			"ui:title": "GSAAS Broker URL"
+		},
+		"apiKey": {
+			"type": "string",
+			"description": "GSAAS API Key",
+			"ui:title": "GSAAS API Key"
+		},
+		"resendTime": {
+			"type": "integer",
+			"description": "Minimum time in ms before a command is resent, set to <= 0 or undefined to disable",
+			"ui:description": "Minimum time in ms before a command is resent, set to a number > 0 to enable",
+			"ui:title": "Resend time in ms",
+			"default": 0
+		},
+		"httpProxy": {
+			"type": "string",
+			"description": "HTTP Proxy",
+			"ui:title": "HTTP Proxy address"
+		},
+		"httpsProxy": {
+			"type": "string",
+			"description": "HTTPS Proxy",
+			"ui:title": "HTTPS Proxy address"
+		},
+		"noProxy": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "URLs not to use a proxy for (E.G. github.com)",
+			"ui:description": "URLs that shouldn't be accessed via a proxy (E.G. github.com)",
+			"ui:title": "No proxy"
+		}
+	},
+	"required": ["brokerUrl", "apiKey"],
+	"additionalProperties": false
+}
