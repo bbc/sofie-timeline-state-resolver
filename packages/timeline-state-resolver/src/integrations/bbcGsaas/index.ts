@@ -54,9 +54,9 @@ export interface BBCGSAASDeviceCommand extends CommandWithContext {
 }
 
 export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState, BBCGSAASDeviceCommand> {
-	private options: BBCGSAASOptions
+	private options!: BBCGSAASOptions
 	//private activeLayers = new Map<string, string>()
-	private cacheable: CacheableLookup
+	private cacheable!: CacheableLookup
 	private _terminated = false
 
 	async init(options: BBCGSAASOptions): Promise<boolean> {
@@ -81,11 +81,18 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		}
 	}
 
-	actions: Record<string, (id: BbcGsaasActions, payload?: Record<string, any>) => Promise<ActionExecutionResult>> = {
-		[BbcGsaasActions.Resync]: async () => {
-			this.context.resetResolver()
-			return { result: ActionExecutionResultCode.Ok }
-		},
+	readonly actions: {
+		[id in BbcGsaasActions]: (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>
+	} = {
+		[BbcGsaasActions.Resync]: this.resyncState.bind(this),
+	}
+
+	private async resyncState(): Promise<ActionExecutionResult> {
+		this.context.resetResolver()
+
+		return {
+			result: ActionExecutionResultCode.Ok,
+		}
 	}
 
 	/*private async sendManualCommand(cmd?: HTTPSendCommandContent): Promise<ActionExecutionResult> {
