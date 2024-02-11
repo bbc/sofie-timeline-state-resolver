@@ -277,6 +277,8 @@ export class SisyfosMessageDevice extends DeviceWithState<SisyfosState, DeviceOp
 			pstOn: 0,
 			label: '',
 			visible: true,
+			inputGain: 0.75, // TODO: Is this true for all devices, should we really be resetting this?
+			inputSelector: 1, // TODO: Is this true for all devices, should we really be resetting this?
 			timelineObjIds: [],
 		}
 	}
@@ -435,6 +437,8 @@ export class SisyfosMessageDevice extends DeviceWithState<SisyfosState, DeviceOp
 				if (newChannel.label !== undefined && newChannel.label !== '') channel.label = newChannel.label
 				if (newChannel.visible !== undefined) channel.visible = newChannel.visible
 				if (newChannel.fadeTime !== undefined) channel.fadeTime = newChannel.fadeTime
+				if (newChannel.inputGain !== undefined) channel.inputGain = newChannel.inputGain
+				if (newChannel.inputSelector !== undefined) channel.inputSelector = newChannel.inputSelector
 
 				channel.timelineObjIds.push(newChannel.timelineObjId)
 			}
@@ -544,6 +548,32 @@ export class SisyfosMessageDevice extends DeviceWithState<SisyfosState, DeviceOp
 						type: SisyfosCommandType.SET_FADER,
 						channel: Number(index),
 						values,
+					},
+					timelineObjId: newChannel.timelineObjIds[0] || '',
+				})
+			}
+
+			if (oldChannel && newChannel.inputGain && oldChannel.inputGain !== newChannel.inputGain) {
+				debug(`change inputGain ${index}: "${newChannel.inputGain}"`)
+				commands.push({
+					context: 'inputGain change',
+					content: {
+						type: SisyfosCommandType.SET_INPUT_GAIN,
+						channel: Number(index),
+						value: newChannel.inputGain,
+					},
+					timelineObjId: newChannel.timelineObjIds[0] || '',
+				})
+			}
+
+			if (oldChannel && newChannel.inputSelector && oldChannel.inputSelector !== newChannel.inputSelector) {
+				debug(`change inputSelector ${index}: "${newChannel.inputSelector}"`)
+				commands.push({
+					context: 'inputSelector change',
+					content: {
+						type: SisyfosCommandType.SET_INPUT_SELECTOR,
+						channel: Number(index),
+						value: newChannel.inputSelector,
 					},
 					timelineObjId: newChannel.timelineObjIds[0] || '',
 				})

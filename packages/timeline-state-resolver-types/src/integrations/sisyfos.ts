@@ -22,6 +22,8 @@ export interface SisyfosChannelOptions {
 	label?: string
 	visible?: boolean
 	fadeTime?: number
+	inputGain?: number
+	inputSelector?: number
 }
 
 export interface TimelineContentSisyfosTriggerValue extends TimelineContentSisyfos {

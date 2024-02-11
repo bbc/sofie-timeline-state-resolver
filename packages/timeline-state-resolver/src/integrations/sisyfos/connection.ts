@@ -112,6 +112,26 @@ export class SisyfosApi extends EventEmitter {
 				address: `/ch/${command.channel + 1}/faderlevel`,
 				args,
 			})
+		} else if (command.type === SisyfosCommandType.SET_INPUT_GAIN) {
+			this._oscClient.send({
+				address: `/ch/${command.channel + 1}/inputgain`,
+				args: [
+					{
+						type: 'f',
+						value: command.value,
+					},
+				],
+			})
+		} else if (command.type === SisyfosCommandType.SET_INPUT_SELECTOR) {
+			this._oscClient.send({
+				address: `/ch/${command.channel + 1}/inputselector`,
+				args: [
+					{
+						type: 'i',
+						value: command.value,
+					},
+				],
+			})
 		} else if (command.type === SisyfosCommandType.VISIBLE) {
 			this._oscClient.send({
 				address: `/ch/${command.channel + 1}/visible`,
@@ -172,6 +192,28 @@ export class SisyfosApi extends EventEmitter {
 				this._oscClient.send({
 					address: `/ch/${command.channel + 1}/faderlevel`,
 					args,
+				})
+			}
+			if (command.values.inputGain !== undefined) {
+				this._oscClient.send({
+					address: `/ch/${command.channel + 1}/inputGain`,
+					args: [
+						{
+							type: 'f',
+							value: command.values.inputGain,
+						},
+					],
+				})
+			}
+			if (command.values.inputSelector !== undefined) {
+				this._oscClient.send({
+					address: `/ch/${command.channel + 1}/inputSelector`,
+					args: [
+						{
+							type: 'i',
+							value: command.values.inputSelector,
+						},
+					],
 				})
 			}
 			if (command.values.visible !== undefined) {
@@ -303,6 +345,10 @@ export class SisyfosApi extends EventEmitter {
 			return { pstOn: message.args[0].value }
 		} else if (address[0] === 'faderlevel') {
 			return { faderLevel: message.args[0].value }
+		} else if (address[0] === 'inputGain') {
+			return { inputGain: message.args[0].value }
+		} else if (address[0] === 'inputSelector') {
+			return { inputSelector: message.args[0].value }
 		}
 		return {}
 	}
@@ -326,6 +372,8 @@ export class SisyfosApi extends EventEmitter {
 				pstOn: ch.pstOn === true ? 1 : 0,
 				label: ch.label || '',
 				visible: ch.showChannel ? true : false,
+				inputGain: ch.inputGain,
+				inputSelector: ch.inputSelector,
 				timelineObjIds: [],
 			}
 
@@ -340,6 +388,8 @@ export enum SisyfosCommandType {
 	TOGGLE_PGM = 'togglePgm',
 	TOGGLE_PST = 'togglePst',
 	SET_FADER = 'setFader',
+	SET_INPUT_GAIN = 'setInputGain',
+	SET_INPUT_SELECTOR = 'setInputSelector',
 	CLEAR_PST_ROW = 'clearPstRow',
 	LABEL = 'label',
 	TAKE = 'take',
@@ -365,6 +415,8 @@ export interface ChannelCommand extends BaseCommand {
 		| SisyfosCommandType.TOGGLE_PST
 		| SisyfosCommandType.LABEL
 		| SisyfosCommandType.VISIBLE
+		| SisyfosCommandType.SET_INPUT_GAIN
+		| SisyfosCommandType.SET_INPUT_SELECTOR
 	channel: number
 }
 
@@ -377,7 +429,11 @@ export interface BoolCommand extends ChannelCommand {
 	value: boolean
 }
 export interface ValueCommand extends ChannelCommand {
-	type: SisyfosCommandType.TOGGLE_PST | SisyfosCommandType.VISIBLE
+	type:
+		| SisyfosCommandType.TOGGLE_PST
+		| SisyfosCommandType.VISIBLE
+		| SisyfosCommandType.SET_INPUT_GAIN
+		| SisyfosCommandType.SET_INPUT_SELECTOR
 	value: number
 }
 
@@ -417,6 +473,8 @@ export interface SisyfosAPIChannel {
 	label: string
 	visible: boolean
 	fadeTime?: number
+	inputGain?: number
+	inputSelector?: number
 }
 
 export interface SisyfosAPIState {
