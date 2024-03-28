@@ -5,6 +5,7 @@ import { Content } from './superfly-timeline'
 
 import { TimelineContentTelemetricsAny } from './integrations/telemetrics'
 import { TimelineContentAtemAny } from './integrations/atem'
+import { TimelineContentBBCGSAASAny } from './integrations/bbcGsaas'
 import { TimelineContentCasparCGAny } from './integrations/casparcg'
 import { TimelineContentHTTPSendAny } from './integrations/httpSend'
 import { TimelineContentTCPSendAny } from './integrations/tcpSend'
@@ -26,6 +27,7 @@ import { TimelineContentTriCasterAny } from './integrations/tricaster'
 
 export * from './integrations/abstract'
 export * from './integrations/atem'
+export * from './integrations/bbcGsaas'
 export * from './integrations/casparcg'
 export * from './integrations/httpSend'
 export * from './integrations/hyperdeck'
@@ -86,6 +88,7 @@ export enum DeviceType {
 	TELEMETRICS = 'TELEMETRICS',
 	TRICASTER = 'TRICASTER',
 	MULTI_OSC = 'MULTI_OSC',
+	BBC_GSAAS = 'BBC_GSAAS',
 }
 
 export interface TSRTimelineKeyframe<TContent> extends Omit<Timeline.TimelineKeyframe, 'content'> {
@@ -147,6 +150,7 @@ export type TSRTimelineContent =
 	| TimelineContentVIZMSEAny
 	| TimelineContentTelemetricsAny
 	| TimelineContentTriCasterAny
+	| TimelineContentBBCGSAASAny
 
 /**
  * A simple key value store that can be referred to from the timeline objects

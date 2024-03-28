@@ -12,6 +12,7 @@ import { HyperdeckDevice } from '../integrations/hyperdeck'
 import { OBSDevice } from '../integrations/obs'
 import { PanasonicPtzDevice } from '../integrations/panasonicPTZ'
 import { LawoDevice } from '../integrations/lawo'
+import { BBCGSAASDevice } from '../integrations/bbcGsaas'
 
 export interface DeviceEntry {
 	deviceClass: new (context: DeviceContextAPI<any>) => Device<any, any, any>
@@ -23,6 +24,7 @@ export interface DeviceEntry {
 export type ImplementedServiceDeviceTypes =
 	| DeviceType.ABSTRACT
 	| DeviceType.ATEM
+	| DeviceType.BBC_GSAAS
 	| DeviceType.HTTPSEND
 	| DeviceType.HTTPWATCHER
 	| DeviceType.HYPERDECK
@@ -47,6 +49,12 @@ export const DevicesDict: Record<ImplementedServiceDeviceTypes, DeviceEntry> = {
 		canConnect: true,
 		deviceName: (deviceId: string) => 'Atem ' + deviceId,
 		executionMode: () => 'salvo',
+	},
+	[DeviceType.BBC_GSAAS]: {
+		deviceClass: BBCGSAASDevice,
+		canConnect: false,
+		deviceName: (deviceId: string) => 'BBC-GSSAS ' + deviceId,
+		executionMode: () => 'sequential',
 	},
 	[DeviceType.HTTPSEND]: {
 		deviceClass: HTTPSendDevice,
