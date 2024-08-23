@@ -5,6 +5,77 @@
 			"id": "resync",
 			"name": "Resync GSAAS device",
 			"destructive": true
+		},
+		{
+			"id": "continue",
+			"name": "Advance the step count on a given zone",
+			"payload": {
+				"type": "object",
+				"properties": {
+					"group": {
+						"type": "string"
+					},
+					"channel": {
+						"type": "string"
+					},
+					"zone": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"group",
+					"channel",
+					"zone"
+				],
+				"additionalProperties": false
+			},
+			"destructive": false
+		},
+		{
+			"id": "clearAll",
+			"name": "Clear all graphics in a given channel",
+			"payload": {
+				"type": "object",
+				"properties": {
+					"group": {
+						"type": "string"
+					},
+					"channel": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"group",
+					"channel"
+				],
+				"additionalProperties": false
+			},
+			"destructive": false
+		},
+		{
+			"id": "clearZone",
+			"name": "Clear the graphics in a given zone",
+			"payload": {
+				"type": "object",
+				"properties": {
+					"group": {
+						"type": "string"
+					},
+					"channel": {
+						"type": "string"
+					},
+					"zone": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"group",
+					"channel",
+					"zone"
+				],
+				"additionalProperties": false
+			},
+			"destructive": false
 		}
 	]
 }

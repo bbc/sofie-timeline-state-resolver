@@ -8,6 +8,17 @@
 			"description": "GSAAS Broker URL",
 			"ui:title": "GSAAS Broker URL"
 		},
+		"clientId": {
+			"type": "string",
+			"description": "GSAAS Client ID",
+			"ui:title": "GSAAS Client ID"
+		},
+		"defaultPriority": {
+			"type": "integer",
+			"description": "GSAAS Default Priority for Load commands",
+			"ui:title": "Default priority",
+			"default": 1
+		},
 		"apiKey": {
 			"type": "string",
 			"description": "GSAAS API Key",
@@ -40,6 +51,6 @@
 			"ui:title": "No proxy"
 		}
 	},
-	"required": ["brokerUrl", "apiKey"],
+	"required": ["brokerUrl"],
 	"additionalProperties": false
 }

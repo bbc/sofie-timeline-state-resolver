@@ -14,29 +14,38 @@ import {
 	SomeMappingBbcGsaas,
 	DeviceType,
 	MappingBbcGsaasType,
+	ContinuePayload,
+	ClearAllPayload,
+	ClearZonePayload,
+	TimelineContentBBCGSAASLoad,
+	TimelineContentBBCGSAASUpdate,
 } from 'timeline-state-resolver-types'
 
 import CacheableLookup from 'cacheable-lookup'
 import { isEqual, omit } from 'underscore'
-import got, { OptionsOfJSONResponseBody, RequestError } from 'got'
+import got, { OptionsOfJSONResponseBody, RequestError, Response } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
+import { cloneDeep, t } from '../../lib'
 
 export type BBCGSAASDeviceState = {
 	[group: string]: {
 		[channel: string]: {
+			control: TimelineContentBBCGSAASLoad['control']
 			scenes: {
 				tlObjId?: string
 				'*'?: string
 				[id: string]: string | undefined
 			}
-			data: {
+			zones: {
 				[zone: string]: {
 					tlObjId: string
 					take: {
-						[key: string]: any
+						id: string
+						zones: Record<string, any>
 					}
 					clear: {
-						[key: string]: any
+						id: string
+						zones: Record<string, any>
 					}
 				}
 			}
@@ -45,12 +54,24 @@ export type BBCGSAASDeviceState = {
 }
 
 export interface BBCGSAASDeviceCommand extends CommandWithContext {
-	command: {
-		type: TimelineContentTypeBBCGSAAS
-		group: string
-		channel: string
-		payload?: Record<string, any>
-	}
+	command:
+		| {
+				type: TimelineContentTypeBBCGSAAS.LOAD
+				group: string
+				channel: string
+				payload: Pick<TimelineContentBBCGSAASLoad, 'control' | 'scenes'>
+		  }
+		| {
+				type: TimelineContentTypeBBCGSAAS.UNLOAD
+				group: string
+				channel: string
+		  }
+		| {
+				type: TimelineContentTypeBBCGSAAS.UPDATE
+				group: string
+				channel: string
+				payload: TimelineContentBBCGSAASUpdate['take'] | TimelineContentBBCGSAASUpdate['clear']
+		  }
 }
 
 export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState, BBCGSAASDeviceCommand> {
@@ -58,6 +79,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 	//private activeLayers = new Map<string, string>()
 	private cacheable!: CacheableLookup
 	private _terminated = false
+	private _internalState: BBCGSAASDeviceState = {}
 
 	async init(options: BBCGSAASOptions): Promise<boolean> {
 		this.options = {
@@ -84,62 +106,175 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 	readonly actions: {
 		[id in BbcGsaasActions]: (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>
 	} = {
-		[BbcGsaasActions.Resync]: this.resyncState.bind(this),
+		[BbcGsaasActions.Resync]: async () => {
+			this.context.resetResolver()
+			return { result: ActionExecutionResultCode.Ok }
+		},
+		[BbcGsaasActions.Continue]: async (_id: string, payload?: Record<string, any>) =>
+			this.continue(payload as ContinuePayload | undefined),
+		[BbcGsaasActions.ClearAll]: async (_id: string, payload?: Record<string, any>) =>
+			this.clearAll(payload as ClearAllPayload | undefined),
+		[BbcGsaasActions.ClearZone]: async (_id: string, payload?: Record<string, any>) =>
+			this.clearZone(payload as ClearZonePayload | undefined),
 	}
 
-	private async resyncState(): Promise<ActionExecutionResult> {
-		this.context.resetResolver()
+	private async continue(payload?: ContinuePayload): Promise<ActionExecutionResult> {
+		if (!payload) {
+			return {
+				result: ActionExecutionResultCode.Error,
+				response: t('Failed to send contine: Missing payload'),
+			}
+		}
+		const { channel, group, zone } = payload
+		const endpoint = `/continue/${group}/${channel}/${zone}`
 
-		return {
-			result: ActionExecutionResultCode.Ok,
+		try {
+			const response = await this.sendToBroker(endpoint)
+
+			if (!response) {
+				return {
+					result: ActionExecutionResultCode.Error,
+					response: t('GSAAS Broker did not respond'),
+				}
+			}
+
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				this.context.logger.debug(
+					`BBC GSAAS: continue: Good statuscode response on url "${endpoint}": ${response.statusCode}`
+				)
+				return {
+					result: ActionExecutionResultCode.Ok,
+				}
+			} else {
+				this.context.logger.warning(
+					`BBC GSAAS: continue Bad statuscode response on url "${endpoint}": ${response.statusCode}`
+				)
+				return {
+					result: ActionExecutionResultCode.Error,
+					response: t('GSAAS Broker responded with an error'),
+				}
+			}
+		} catch (error) {
+			const err = error as RequestError // make typescript happy
+
+			this.context.logger.error(`BBC GSAAS response error on continue "${endpoint}"`, err)
+			return {
+				result: ActionExecutionResultCode.Error,
+				response: t('Failed to send command to GSAAS broker'),
+			}
 		}
 	}
 
-	/*private async sendManualCommand(cmd?: HTTPSendCommandContent): Promise<ActionExecutionResult> {
-		if (!cmd)
+	private async clearAll(payload?: ClearAllPayload): Promise<ActionExecutionResult> {
+		if (!payload) {
 			return {
 				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send command: Missing upayloadrl'),
-			}
-		if (!cmd.url) {
-			return {
-				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send command: Missing url'),
+				response: t('Failed to send contine: Missing payload'),
 			}
 		}
-		if (!Object.values<TimelineContentTypeHTTP>(TimelineContentTypeHTTP).includes(cmd.type)) {
+		const { channel, group } = payload
+		const endpoint = `/clearAll/${group}/${channel}`
+
+		try {
+			const response = await this.sendToBroker(endpoint)
+
+			if (!response) {
+				return {
+					result: ActionExecutionResultCode.Error,
+					response: t('GSAAS Broker did not respond'),
+				}
+			}
+
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				this.context.logger.debug(
+					`BBC GSAAS: clearAll: Good statuscode response on url "${endpoint}": ${response.statusCode}`
+				)
+				await this.context.resetState()
+				return {
+					result: ActionExecutionResultCode.Ok,
+				}
+			} else {
+				this.context.logger.warning(
+					`BBC GSAAS: clearAll Bad statuscode response on url "${endpoint}": ${response.statusCode}`
+				)
+				return {
+					result: ActionExecutionResultCode.Error,
+					response: t('GSAAS Broker responded with an error'),
+				}
+			}
+		} catch (error) {
+			const err = error as RequestError // make typescript happy
+
+			this.context.logger.error(`BBC GSAAS response error on clearAll "${endpoint}"`, err)
 			return {
 				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send command: type is invalid'),
+				response: t('Failed to send command to GSAAS broker'),
 			}
 		}
-		if (!cmd.params) {
+	}
+
+	private async clearZone(payload?: ClearZonePayload): Promise<ActionExecutionResult> {
+		if (!payload) {
 			return {
 				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send command: Missing params'),
-			}
-		}
-		if (cmd.paramsType && !(cmd.type in TimelineContentTypeHTTPParamType)) {
-			return {
-				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send command: params type is invalid'),
+				response: t('Failed to send contine: Missing payload'),
 			}
 		}
 
-		await this.sendCommand({
-			tlObjId: '',
-			context: 'makeReady',
-			command: {
-				commandName: 'manual',
-				content: cmd,
-				layer: '',
-			},
-		}).catch(() => this.emit('warning', 'Manual command failed: ' + JSON.stringify(cmd)))
+		const { channel, group, zone } = payload
+		const endpoint = `/update/${group}/${channel}`
 
-		return {
-			result: ActionExecutionResultCode.Ok,
+		if (
+			this._internalState[group] &&
+			this._internalState[group][channel] &&
+			this._internalState[group][channel].zones[zone] &&
+			this._internalState[group][channel].zones[zone].clear
+		) {
+			try {
+				const response = await this.sendToBroker(endpoint, this._internalState[group][channel].zones[zone].clear)
+
+				if (!response) {
+					return {
+						result: ActionExecutionResultCode.Error,
+						response: t('GSAAS Broker did not respond'),
+					}
+				}
+
+				if (response.statusCode >= 200 && response.statusCode <= 299) {
+					this.context.logger.debug(
+						`BBC GSAAS: clearZone: Good statuscode response on url "${endpoint}": ${response.statusCode}`
+					)
+
+					delete this._internalState[group][channel].zones[zone]
+
+					await this.context.resetToState(this._internalState)
+					return {
+						result: ActionExecutionResultCode.Ok,
+					}
+				} else {
+					this.context.logger.warning(
+						`BBC GSAAS: clearZone Bad statuscode response on url "${endpoint}": ${response.statusCode}`
+					)
+					return {
+						result: ActionExecutionResultCode.Error,
+						response: t('GSAAS Broker responded with an error'),
+					}
+				}
+			} catch (error) {
+				const err = error as RequestError // make typescript happy
+
+				this.context.logger.error(`BBC GSAAS response error on clearZone "${endpoint}"`, err)
+				return {
+					result: ActionExecutionResultCode.Error,
+					response: t('Failed to send command to GSAAS broker'),
+				}
+			}
+		} else {
+			return {
+				result: ActionExecutionResultCode.Ok,
+			}
 		}
-	}*/
+	}
 
 	convertTimelineStateToDeviceState(
 		state: Timeline.TimelineState<TSRTimelineContent>,
@@ -157,14 +292,16 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 			if (!newState[group]) {
 				newState[group] = {
 					[channel]: {
+						control: {},
 						scenes: {},
-						data: {},
+						zones: {},
 					},
 				}
 			} else if (!newState[group][channel]) {
 				newState[group][channel] = {
+					control: {},
 					scenes: {},
-					data: {},
+					zones: {},
 				}
 			}
 			if (content.deviceType === DeviceType.BBC_GSAAS && mapping) {
@@ -174,11 +311,12 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							continue
 						}
 						newState[group][channel] = {
+							control: content.control,
 							scenes: {
 								...content.scenes,
 								tlObjId: id,
 							},
-							data: {},
+							zones: {},
 						}
 						continue
 
@@ -186,10 +324,20 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						if (mappingType !== MappingBbcGsaasType.Zone) {
 							continue
 						}
-						newState[group][channel].data[mapping.options.zone] = {
+						newState[group][channel].zones[mapping.options.zone] = {
 							tlObjId: id,
-							take: content.take,
-							clear: content.clear,
+							take: {
+								id: content.take.id,
+								zones: {
+									[mapping.options.zone]: content.take.zones[mapping.options.zone],
+								},
+							},
+							clear: {
+								id: content.clear.id,
+								zones: {
+									[mapping.options.zone]: content.clear.zones[mapping.options.zone],
+								},
+							},
 						}
 						continue
 
@@ -198,15 +346,17 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							continue
 						}
 						newState[group][channel] = {
+							control: {},
 							scenes: {
 								tlObjId: id,
 							},
-							data: {},
+							zones: {},
 						}
 						continue
 				}
 			}
 		}
+		this._internalState = cloneDeep(newState)
 		return newState
 	}
 
@@ -244,6 +394,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 									group: groupId,
 									channel: channelId,
 									payload: {
+										control: newChannel.control,
 										scenes: omit(newChannel.scenes, 'tlObjId'),
 									},
 								},
@@ -251,10 +402,10 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						}
 
 						// Update zone if either if the take payload has changed.
-						for (const zoneId of Object.keys(newChannel.data)) {
-							const zone = newState[groupId][channelId].data[zoneId]
-							if (oldState[groupId][channelId].data[zoneId]) {
-								const oldZone = oldState[groupId][channelId].data[zoneId]
+						for (const zoneId of Object.keys(newChannel.zones)) {
+							const zone = newState[groupId][channelId].zones[zoneId]
+							if (oldState[groupId][channelId].zones[zoneId]) {
+								const oldZone = oldState[groupId][channelId].zones[zoneId]
 								if (!isEqual(zone.take, oldZone.take)) {
 									sceneCommands.push({
 										timelineObjId: newChannel.scenes.tlObjId ?? '',
@@ -263,9 +414,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 											type: TimelineContentTypeBBCGSAAS.UPDATE,
 											group: groupId,
 											channel: channelId,
-											payload: {
-												data: zone.take,
-											},
+											payload: zone.take,
 										},
 									})
 								}
@@ -277,9 +426,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 										type: TimelineContentTypeBBCGSAAS.UPDATE,
 										group: groupId,
 										channel: channelId,
-										payload: {
-											data: zone.take,
-										},
+										payload: zone.take,
 									},
 								})
 							}
@@ -295,14 +442,15 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 									group: groupId,
 									channel: channelId,
 									payload: {
+										control: newChannel.control,
 										scenes: omit(newChannel.scenes, 'tlObjId'),
 									},
 								},
 							})
 						}
-						if (newChannel.data) {
-							for (const zoneId of Object.keys(newChannel.data)) {
-								const zone = newState[groupId][channelId].data[zoneId]
+						if (newChannel.zones) {
+							for (const zoneId of Object.keys(newChannel.zones)) {
+								const zone = newState[groupId][channelId].zones[zoneId]
 								sceneCommands.push({
 									timelineObjId: zone.tlObjId ?? '',
 									context: `Added channel ${channelId} and zone ${zoneId} to existing group ${groupId}`,
@@ -310,9 +458,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 										type: TimelineContentTypeBBCGSAAS.UPDATE,
 										group: groupId,
 										channel: channelId,
-										payload: {
-											data: zone.take,
-										},
+										payload: zone.take,
 									},
 								})
 							}
@@ -332,14 +478,15 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 								group: groupId,
 								channel: channelId,
 								payload: {
+									control: newChannel.control,
 									scenes: omit(newChannel.scenes, 'tlObjId'),
 								},
 							},
 						})
 					}
-					if (newChannel.data) {
-						for (const zoneId of Object.keys(newChannel.data)) {
-							const zone = newState[groupId][channelId].data[zoneId]
+					if (newChannel.zones) {
+						for (const zoneId of Object.keys(newChannel.zones)) {
+							const zone = newState[groupId][channelId].zones[zoneId]
 							sceneCommands.push({
 								timelineObjId: zone.tlObjId ?? '',
 								context: `Added group ${groupId} and channel ${channelId} and zone ${zoneId}`,
@@ -347,9 +494,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 									type: TimelineContentTypeBBCGSAAS.UPDATE,
 									group: groupId,
 									channel: channelId,
-									payload: {
-										data: zone.take,
-									},
+									payload: zone.take,
 								},
 							})
 						}
@@ -365,9 +510,9 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						const oldChannel = oldState[groupId][channelId]
 						if (newState[groupId][channelId]) {
 							const newChannel = newState[groupId][channelId]
-							for (const zoneId of Object.keys(oldChannel.data)) {
-								if (!newChannel.data[zoneId]) {
-									const oldZone = oldChannel.data[zoneId]
+							for (const zoneId of Object.keys(oldChannel.zones)) {
+								if (!newChannel.zones[zoneId]) {
+									const oldZone = oldChannel.zones[zoneId]
 									sceneCommands.push({
 										timelineObjId: oldZone.tlObjId ?? '',
 										context: `Removed zone ${zoneId} from channel ${channelId} from group ${groupId}`,
@@ -375,9 +520,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 											type: TimelineContentTypeBBCGSAAS.UPDATE,
 											group: groupId,
 											channel: channelId,
-											payload: {
-												data: oldZone.clear,
-											},
+											payload: oldZone.clear,
 										},
 									})
 								}
@@ -426,19 +569,19 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		}
 		this.context.logger.debug({ context, timelineObjId, command })
 
-		//const t = Date.now()
+		const { group, channel, type } = command
+		let payload: Record<string, any> | undefined
 
-		const { apiKey, brokerUrl } = this.options
-		const { group, channel, payload, type } = command
-
-		let endpoint = brokerUrl + 'v2/'
+		let endpoint = '/'
 		switch (type) {
 			case TimelineContentTypeBBCGSAAS.LOAD:
 				endpoint += 'load'
+				payload = command.payload
 				break
 
 			case TimelineContentTypeBBCGSAAS.UPDATE:
 				endpoint += 'update'
+				payload = command.payload
 				break
 
 			case TimelineContentTypeBBCGSAAS.UNLOAD:
@@ -446,37 +589,17 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 				break
 
 			default:
-				this.context.logger.warning(`BBC GSAAS - Invalid command type ${command.type} (${context})`)
+				this.context.logger.warning(`BBC GSAAS - Invalid command type (${context})`)
 				return Promise.resolve()
 		}
 		endpoint += `/${group}/${channel}`
 
 		try {
-			const options: OptionsOfJSONResponseBody = {
-				dnsCache: this.cacheable,
-				retry: 0,
-				headers: {
-					'api-key': apiKey,
-				},
-				json: payload,
-			}
+			const response = await this.sendToBroker(endpoint, payload)
 
-			const url = new URL(endpoint)
-			if (url.protocol === 'http:' && this.options.httpProxy) {
-				options.agent = {
-					http: new HttpProxyAgent({
-						proxy: this.options.httpProxy,
-					}),
-				}
-			} else if (url.protocol === 'https:' && this.options.httpsProxy) {
-				options.agent = {
-					https: new HttpsProxyAgent({
-						proxy: this.options.httpsProxy,
-					}),
-				}
+			if (!response) {
+				return Promise.resolve()
 			}
-
-			const response = await got.post(url, options)
 
 			if (response.statusCode >= 200 && response.statusCode <= 299) {
 				this.context.logger.debug(
@@ -521,120 +644,40 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 				}*/
 			}
 		}
+	}
 
-		/*if (command.commandName === 'added' || command.commandName === 'changed') {
-			this.activeLayers.set(command.layer, JSON.stringify(command.content))
-		} else if (command.commandName === 'removed') {
-			this.activeLayers.delete(command.layer)
-		}
-
-		if (command.layer && command.commandName !== 'manual') {
-			const hash = this.activeLayers.get(command.layer)
-			if (JSON.stringify(command.content) !== hash) return Promise.resolve() // command is no longer relevant to state
-		}
+	private async sendToBroker(endpoint: string, payload?: Record<string, any>): Promise<Response<unknown> | void> {
 		if (this._terminated) {
 			return Promise.resolve()
 		}
+		const { apiKey, brokerUrl, clientId } = this.options
 
-		const cwc: CommandWithContext = {
-			context,
-			command,
-			tlObjId,
+		const path = brokerUrl + 'v3' + endpoint
+		const options: OptionsOfJSONResponseBody = {
+			dnsCache: this.cacheable,
+			retry: 0,
+			headers: {
+				'api-key': apiKey,
+				ClientID: clientId,
+			},
+			json: payload,
 		}
-		this.emit('debug', { context, tlObjId, command })
 
-		const t = Date.now()
-
-		const httpReq = got[command.content.type]
-		try {
-			const options: OptionsOfTextResponseBody = {
-				dnsCache: this.cacheable,
-				retry: 0,
-				headers: command.content.headers,
+		const url = new URL(path)
+		if (url.protocol === 'http:' && this.options.httpProxy) {
+			options.agent = {
+				http: new HttpProxyAgent({
+					proxy: this.options.httpProxy,
+				}),
 			}
-
-			const url = new URL(command.content.url)
-			if (!this.options.noProxy?.includes(url.host)) {
-				if (url.protocol === 'http:' && this.options.httpProxy) {
-					options.agent = {
-						http: new HttpProxyAgent({
-							proxy: this.options.httpProxy,
-						}),
-					}
-				} else if (url.protocol === 'https:' && this.options.httpsProxy) {
-					options.agent = {
-						https: new HttpsProxyAgent({
-							proxy: this.options.httpsProxy,
-						}),
-					}
-				}
+		} else if (url.protocol === 'https:' && this.options.httpsProxy) {
+			options.agent = {
+				https: new HttpsProxyAgent({
+					proxy: this.options.httpsProxy,
+				}),
 			}
+		}
 
-			const params =
-				'params' in command.content && !_.isEmpty(command.content.params) ? command.content.params : undefined
-			if (params) {
-				if (command.content.type === TimelineContentTypeHTTP.GET) {
-					options.searchParams = params as Record<string, any>
-				} else {
-					if (command.content.paramsType === TimelineContentTypeHTTPParamType.FORM) {
-						options.form = params
-					} else {
-						// Default is json:
-						options.json = params
-					}
-				}
-			}
-
-			const response = await httpReq(command.content.url, options)
-
-			if (response.statusCode === 200) {
-				this.emit(
-					'debug',
-					`HTTPSend: ${command.content.type}: Good statuscode response on url "${command.content.url}": ${response.statusCode} (${context})`
-				)
-			} else {
-				this.emit(
-					'warning',
-					`HTTPSend: ${command.content.type}: Bad statuscode response on url "${command.content.url}": ${response.statusCode} (${context})`
-				)
-			}
-		} catch (error) {
-			const err = error as RequestError // make typescript happy
-
-			this.emit(
-				'error',
-				`HTTPSend.response error on ${command.content.type} "${command.content.url}" (${context})`,
-				err
-			)
-			this.emit('commandError', err, cwc)
-
-			if ('code' in err) {
-				const retryCodes = [
-					'ETIMEDOUT',
-					'ECONNRESET',
-					'EADDRINUSE',
-					'ECONNREFUSED',
-					'EPIPE',
-					'ENOTFOUND',
-					'ENETUNREACH',
-					'EHOSTUNREACH',
-					'EAI_AGAIN',
-				]
-
-				if (retryCodes.includes(err.code) && this.options?.resendTime && command.commandName !== 'manual') {
-					const timeLeft = Math.max(this.options.resendTime - (Date.now() - t), 0)
-					setTimeout(() => {
-						this.sendCommand({
-							tlObjId,
-							context,
-							command: {
-								...command,
-								commandName: 'retry',
-							},
-						}).catch(() => null) // errors will be emitted
-					}, timeLeft)
-				}
-			}
-		}*/
+		return got.post(url, options)
 	}
 }

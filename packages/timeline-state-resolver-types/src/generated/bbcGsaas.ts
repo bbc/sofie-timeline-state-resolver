@@ -12,9 +12,17 @@ export interface BBCGSAASOptions {
 	 */
 	brokerUrl: string
 	/**
+	 * GSAAS Client ID
+	 */
+	clientId?: string
+	/**
+	 * GSAAS Default Priority for Load commands
+	 */
+	defaultPriority?: number
+	/**
 	 * GSAAS API Key
 	 */
-	apiKey: string
+	apiKey?: string
 	/**
 	 * Minimum time in ms before a command is resent, set to <= 0 or undefined to disable
 	 */
@@ -53,11 +61,34 @@ export enum MappingBbcGsaasType {
 
 export type SomeMappingBbcGsaas = MappingBbcGsaasZone | MappingBbcGsaasChannel
 
+export interface ContinuePayload {
+	group: string
+	channel: string
+	zone: string
+}
+
+export interface ClearAllPayload {
+	group: string
+	channel: string
+}
+
+export interface ClearZonePayload {
+	group: string
+	channel: string
+	zone: string
+}
+
 export enum BbcGsaasActions {
-	Resync = 'resync'
+	Resync = 'resync',
+	Continue = 'continue',
+	ClearAll = 'clearAll',
+	ClearZone = 'clearZone'
 }
 export interface BbcGsaasActionExecutionResults {
-	resync: () => void
+	resync: () => void,
+	continue: (payload: ContinuePayload) => void,
+	clearAll: (payload: ClearAllPayload) => void,
+	clearZone: (payload: ClearZonePayload) => void
 }
 export type BbcGsaasActionExecutionPayload<A extends keyof BbcGsaasActionExecutionResults> = Parameters<
 	BbcGsaasActionExecutionResults[A]
