@@ -14,19 +14,11 @@ export interface BBCGSAASOptions {
 	/**
 	 * GSAAS Client ID
 	 */
-	clientId?: string
-	/**
-	 * GSAAS Default Priority for Load commands
-	 */
-	defaultPriority?: number
+	clientId: string
 	/**
 	 * GSAAS API Key
 	 */
 	apiKey?: string
-	/**
-	 * Minimum time in ms before a command is resent, set to <= 0 or undefined to disable
-	 */
-	resendTime?: number
 	/**
 	 * HTTP Proxy
 	 */

@@ -13,23 +13,10 @@
 			"description": "GSAAS Client ID",
 			"ui:title": "GSAAS Client ID"
 		},
-		"defaultPriority": {
-			"type": "integer",
-			"description": "GSAAS Default Priority for Load commands",
-			"ui:title": "Default priority",
-			"default": 1
-		},
 		"apiKey": {
 			"type": "string",
 			"description": "GSAAS API Key",
 			"ui:title": "GSAAS API Key"
-		},
-		"resendTime": {
-			"type": "integer",
-			"description": "Minimum time in ms before a command is resent, set to <= 0 or undefined to disable",
-			"ui:description": "Minimum time in ms before a command is resent, set to a number > 0 to enable",
-			"ui:title": "Resend time in ms",
-			"default": 0
 		},
 		"httpProxy": {
 			"type": "string",
@@ -51,6 +38,10 @@
 			"ui:title": "No proxy"
 		}
 	},
-	"required": ["brokerUrl"],
+	"required": [
+		"brokerUrl",
+		"clientId",
+		"defaultPriority"
+	],
 	"additionalProperties": false
 }
