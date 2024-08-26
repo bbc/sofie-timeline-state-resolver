@@ -408,7 +408,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 								const oldZone = oldState[groupId][channelId].zones[zoneId]
 								if (!isEqual(zone.take, oldZone.take)) {
 									sceneCommands.push({
-										timelineObjId: newChannel.scenes.tlObjId ?? '',
+										timelineObjId: zone.tlObjId ?? '',
 										context: `Updated zone ${zoneId} for channel ${channelId} in group ${groupId}`,
 										command: {
 											type: TimelineContentTypeBBCGSAAS.UPDATE,
@@ -420,7 +420,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 								}
 							} else {
 								sceneCommands.push({
-									timelineObjId: newChannel.scenes.tlObjId ?? '',
+									timelineObjId: zone.tlObjId ?? '',
 									context: `Added zone ${zoneId} for channel ${channelId} in group ${groupId}`,
 									command: {
 										type: TimelineContentTypeBBCGSAAS.UPDATE,
