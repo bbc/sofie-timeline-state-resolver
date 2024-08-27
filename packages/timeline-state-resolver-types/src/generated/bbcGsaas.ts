@@ -33,25 +33,25 @@ export interface BBCGSAASOptions {
 	noProxy?: string[]
 }
 
-export interface MappingBbcGsaasZone {
+export interface MappingBBCGSAASZone {
 	group: string
 	channel: string
 	zone: string
-	mappingType: MappingBbcGsaasType.Zone
+	mappingType: MappingBBCGSAASType.Zone
 }
 
-export interface MappingBbcGsaasChannel {
+export interface MappingBBCGSAASChannel {
 	group: string
 	channel: string
-	mappingType: MappingBbcGsaasType.Channel
+	mappingType: MappingBBCGSAASType.Channel
 }
 
-export enum MappingBbcGsaasType {
+export enum MappingBBCGSAASType {
 	Zone = 'zone',
 	Channel = 'channel',
 }
 
-export type SomeMappingBbcGsaas = MappingBbcGsaasZone | MappingBbcGsaasChannel
+export type SomeMappingBBCGSAAS = MappingBBCGSAASZone | MappingBBCGSAASChannel
 
 export interface ContinuePayload {
 	group: string
@@ -70,21 +70,21 @@ export interface ClearZonePayload {
 	zone: string
 }
 
-export enum BbcGsaasActions {
+export enum BBCGSAASActions {
 	Resync = 'resync',
 	Continue = 'continue',
 	ClearAll = 'clearAll',
 	ClearZone = 'clearZone'
 }
-export interface BbcGsaasActionExecutionResults {
+export interface BBCGSAASActionExecutionResults {
 	resync: () => void,
 	continue: (payload: ContinuePayload) => void,
 	clearAll: (payload: ClearAllPayload) => void,
 	clearZone: (payload: ClearZonePayload) => void
 }
-export type BbcGsaasActionExecutionPayload<A extends keyof BbcGsaasActionExecutionResults> = Parameters<
-	BbcGsaasActionExecutionResults[A]
+export type BBCGSAASActionExecutionPayload<A extends keyof BBCGSAASActionExecutionResults> = Parameters<
+	BBCGSAASActionExecutionResults[A]
 >[0]
 
-export type BbcGsaasActionExecutionResult<A extends keyof BbcGsaasActionExecutionResults> =
-	ActionExecutionResult<ReturnType<BbcGsaasActionExecutionResults[A]>>
+export type BBCGSAASActionExecutionResult<A extends keyof BBCGSAASActionExecutionResults> =
+	ActionExecutionResult<ReturnType<BBCGSAASActionExecutionResults[A]>>

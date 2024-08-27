@@ -1,27 +1,5 @@
 import { DeviceType } from '..'
 
-/** GSAAS update actions. */
-export enum BBCGSAASUpdateAction {
-	/** Clear a zone. */
-	Clear = 'CLEAR',
-	/** Update the graphic in a zone. */
-	Take = 'TAKE',
-}
-
-/** Permissions a GSAAS client may have. */
-export enum BBCGSAASClientPermissions {
-	/** Clear all graphics within a zone. */
-	ClearAll = 'clearAll',
-	/** Continue a stepped graphic. */
-	Continue = 'continue',
-	/** Load a channel. */
-	Load = 'load',
-	/** Unload a channel. */
-	Unload = 'unload',
-	/** Update data within a channel. */
-	Update = 'update',
-}
-
 export enum TimelineContentTypeBBCGSAAS {
 	/** Load a channel. */
 	LOAD = 'load',
@@ -45,7 +23,7 @@ export type TimelineContentBBCGSAASLoad = TimelineContentBBCGSAASBase & {
 	type: TimelineContentTypeBBCGSAAS.LOAD
 	control: {
 		[id: string]: {
-			permissions: BBCGSAASClientPermissions[]
+			permissions: string[]
 			priority: number
 		}
 	}
@@ -65,7 +43,7 @@ export type TimelineContentBBCGSAASUpdate = TimelineContentBBCGSAASBase & {
 		id: string
 		zones: {
 			[id: string]: {
-				action: BBCGSAASUpdateAction.Take
+				action: 'TAKE'
 				component: string
 				priority?: number
 				immediate?: boolean
@@ -78,7 +56,7 @@ export type TimelineContentBBCGSAASUpdate = TimelineContentBBCGSAASBase & {
 		id: string
 		zones: {
 			[id: string]: {
-				action: BBCGSAASUpdateAction.Clear
+				action: 'CLEAR'
 				priority?: number
 				immediate?: boolean
 			}

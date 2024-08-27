@@ -17,7 +17,7 @@ import { PharosDevice } from '../integrations/pharos'
 import { TelemetricsDevice } from '../integrations/telemetrics'
 import { TriCasterDevice } from '../integrations/tricaster'
 import { SingularLiveDevice } from '../integrations/singularLive'
-import { BBCGSAASDevice } from '../integrations/bbcGsaas'
+import { BBCGSAASDevice } from '../integrations/BBCGSAAS'
 
 export interface DeviceEntry {
 	deviceClass: new (context: DeviceContextAPI<any>) => Device<any, any, any>

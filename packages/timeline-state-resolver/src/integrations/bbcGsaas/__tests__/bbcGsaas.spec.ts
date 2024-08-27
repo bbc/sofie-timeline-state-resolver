@@ -1,17 +1,16 @@
+/* eslint-disable jest/expect-expect */
 import {
 	TimelineContentTypeBBCGSAAS,
-	BBCGSAASClientPermissions,
-	BBCGSAASUpdateAction,
 	ClearAllPayload,
 	ClearZonePayload,
 	ActionExecutionResultCode,
 	ContinuePayload,
-	MappingBbcGsaasChannel,
-	MappingBbcGsaasType,
 	DeviceType,
-	MappingBbcGsaasZone,
 	TimelineContentBBCGSAASLoad,
 	TimelineContentBBCGSAASUpdate,
+	MappingBBCGSAASZone,
+	MappingBBCGSAASType,
+	MappingBBCGSAASChannel,
 } from 'timeline-state-resolver-types'
 
 const MOCKED_SOCKET_POST = jest.fn()
@@ -61,7 +60,7 @@ describe('BBC-GSAAS', () => {
 								type: TimelineContentTypeBBCGSAAS.LOAD,
 								control: {
 									[DEFAULT_CLIENT_ID]: {
-										permissions: [BBCGSAASClientPermissions.Load],
+										permissions: ['load'],
 										priority: DEFAULT_CLIENT_PRIORITY,
 									},
 								},
@@ -74,8 +73,8 @@ describe('BBC-GSAAS', () => {
 				},
 				{
 					[DEFAULT_CHANNEL]: {
-						options: literal<MappingBbcGsaasChannel>({
-							mappingType: MappingBbcGsaasType.Channel,
+						options: literal<MappingBBCGSAASChannel>({
+							mappingType: MappingBBCGSAASType.Channel,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
 						}),
@@ -119,7 +118,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -131,7 +130,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -141,8 +140,8 @@ describe('BBC-GSAAS', () => {
 				},
 				{
 					[DEFAULT_ZONE]: {
-						options: literal<MappingBbcGsaasZone>({
-							mappingType: MappingBbcGsaasType.Zone,
+						options: literal<MappingBBCGSAASZone>({
+							mappingType: MappingBBCGSAASType.Zone,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
 							zone: DEFAULT_ZONE,
@@ -163,7 +162,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -175,7 +174,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -201,7 +200,7 @@ describe('BBC-GSAAS', () => {
 								type: TimelineContentTypeBBCGSAAS.LOAD,
 								control: {
 									[DEFAULT_CLIENT_ID]: {
-										permissions: [BBCGSAASClientPermissions.Load],
+										permissions: ['load'],
 										priority: DEFAULT_CLIENT_PRIORITY,
 									},
 								},
@@ -219,7 +218,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -231,7 +230,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -241,15 +240,15 @@ describe('BBC-GSAAS', () => {
 				},
 				{
 					[DEFAULT_CHANNEL]: {
-						options: literal<MappingBbcGsaasChannel>({
-							mappingType: MappingBbcGsaasType.Channel,
+						options: literal<MappingBBCGSAASChannel>({
+							mappingType: MappingBBCGSAASType.Channel,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
 						}),
 					} as any,
 					[DEFAULT_ZONE]: {
-						options: literal<MappingBbcGsaasZone>({
-							mappingType: MappingBbcGsaasType.Zone,
+						options: literal<MappingBBCGSAASZone>({
+							mappingType: MappingBBCGSAASType.Zone,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
 							zone: DEFAULT_ZONE,
@@ -278,7 +277,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -290,7 +289,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -329,7 +328,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -352,7 +351,7 @@ describe('BBC-GSAAS', () => {
 						payload: {
 							control: {
 								[DEFAULT_CLIENT_ID]: {
-									permissions: [BBCGSAASClientPermissions.Load],
+									permissions: ['load'],
 									priority: DEFAULT_CLIENT_PRIORITY,
 								},
 							},
@@ -371,7 +370,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -402,7 +401,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -419,7 +418,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -443,7 +442,7 @@ describe('BBC-GSAAS', () => {
 						payload: {
 							control: {
 								[DEFAULT_CLIENT_ID]: {
-									permissions: [BBCGSAASClientPermissions.Load],
+									permissions: ['load'],
 									priority: DEFAULT_CLIENT_PRIORITY,
 								},
 							},
@@ -463,7 +462,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -480,7 +479,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -495,7 +494,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -507,7 +506,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 											component: 'testComponent',
 											props: {
 												key: 'clearValue',
@@ -532,7 +531,7 @@ describe('BBC-GSAAS', () => {
 							id: 'itemId',
 							zones: {
 								[DEFAULT_ZONE]: {
-									action: BBCGSAASUpdateAction.Take,
+									action: 'TAKE',
 									component: 'testComponent',
 									props: {
 										key: 'takeValue',
@@ -551,7 +550,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -566,7 +565,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -578,7 +577,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 											component: 'testComponent',
 											props: {
 												key: 'clearValue',
@@ -596,7 +595,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -611,7 +610,7 @@ describe('BBC-GSAAS', () => {
 									id: 'anotherItemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -624,7 +623,7 @@ describe('BBC-GSAAS', () => {
 									id: 'anotherItemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 											component: 'testComponent',
 											props: {
 												key: 'clearValue',
@@ -649,7 +648,7 @@ describe('BBC-GSAAS', () => {
 							id: 'anotherItemId',
 							zones: {
 								[DEFAULT_ZONE]: {
-									action: BBCGSAASUpdateAction.Take,
+									action: 'TAKE',
 									component: 'testComponent',
 									props: {
 										key: 'takeValue',
@@ -669,7 +668,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -684,7 +683,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -696,7 +695,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -710,7 +709,7 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -734,7 +733,7 @@ describe('BBC-GSAAS', () => {
 							id: 'itemId',
 							zones: {
 								[DEFAULT_ZONE]: {
-									action: BBCGSAASUpdateAction.Clear,
+									action: 'CLEAR',
 								},
 							},
 						},
@@ -759,7 +758,7 @@ describe('BBC-GSAAS', () => {
 						payload: {
 							control: {
 								[DEFAULT_CLIENT_ID]: {
-									permissions: [BBCGSAASClientPermissions.Load],
+									permissions: ['load'],
 									priority: DEFAULT_CLIENT_PRIORITY,
 								},
 							},
@@ -785,7 +784,7 @@ describe('BBC-GSAAS', () => {
 					json: {
 						control: {
 							[DEFAULT_CLIENT_ID]: {
-								permissions: [BBCGSAASClientPermissions.Load],
+								permissions: ['load'],
 								priority: DEFAULT_CLIENT_PRIORITY,
 							},
 						},
@@ -842,7 +841,7 @@ describe('BBC-GSAAS', () => {
 							id: 'itemId',
 							zones: {
 								[DEFAULT_ZONE]: {
-									action: BBCGSAASUpdateAction.Take,
+									action: 'TAKE',
 									component: 'testComponent',
 									props: {
 										key: 'takeValue',
@@ -869,7 +868,7 @@ describe('BBC-GSAAS', () => {
 						id: 'itemId',
 						zones: {
 							[DEFAULT_ZONE]: {
-								action: BBCGSAASUpdateAction.Take,
+								action: 'TAKE',
 								component: 'testComponent',
 								props: {
 									key: 'takeValue',
@@ -991,7 +990,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -1003,7 +1002,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -1013,8 +1012,8 @@ describe('BBC-GSAAS', () => {
 				},
 				{
 					[DEFAULT_ZONE]: {
-						options: literal<MappingBbcGsaasZone>({
-							mappingType: MappingBbcGsaasType.Zone,
+						options: literal<MappingBBCGSAASZone>({
+							mappingType: MappingBBCGSAASType.Zone,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
 							zone: DEFAULT_ZONE,
@@ -1053,7 +1052,7 @@ describe('BBC-GSAAS', () => {
 						id: 'itemId',
 						zones: {
 							[DEFAULT_ZONE]: {
-								action: BBCGSAASUpdateAction.Clear,
+								action: 'CLEAR',
 							},
 						},
 					},
@@ -1078,7 +1077,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Take,
+											action: 'TAKE',
 											component: 'testComponent',
 											props: {
 												key: 'takeValue',
@@ -1090,7 +1089,7 @@ describe('BBC-GSAAS', () => {
 									id: 'itemId',
 									zones: {
 										[DEFAULT_ZONE]: {
-											action: BBCGSAASUpdateAction.Clear,
+											action: 'CLEAR',
 										},
 									},
 								},
@@ -1100,8 +1099,8 @@ describe('BBC-GSAAS', () => {
 				},
 				{
 					[DEFAULT_ZONE]: {
-						options: literal<MappingBbcGsaasZone>({
-							mappingType: MappingBbcGsaasType.Zone,
+						options: literal<MappingBBCGSAASZone>({
+							mappingType: MappingBBCGSAASType.Zone,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
 							zone: DEFAULT_ZONE,

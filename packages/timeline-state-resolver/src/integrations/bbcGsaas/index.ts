@@ -8,17 +8,17 @@ import {
 	Timeline,
 	BBCGSAASOptions,
 	TimelineContentTypeBBCGSAAS,
-	BbcGsaasActions,
 	Mappings,
 	Mapping,
-	SomeMappingBbcGsaas,
 	DeviceType,
-	MappingBbcGsaasType,
 	ContinuePayload,
 	ClearAllPayload,
 	ClearZonePayload,
 	TimelineContentBBCGSAASLoad,
 	TimelineContentBBCGSAASUpdate,
+	BBCGSAASActions,
+	MappingBBCGSAASType,
+	SomeMappingBBCGSAAS,
 } from 'timeline-state-resolver-types'
 
 import CacheableLookup from 'cacheable-lookup'
@@ -104,17 +104,17 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 	}
 
 	readonly actions: {
-		[id in BbcGsaasActions]: (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>
+		[id in BBCGSAASActions]: (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>
 	} = {
-		[BbcGsaasActions.Resync]: async () => {
+		[BBCGSAASActions.Resync]: async () => {
 			this.context.resetResolver()
 			return { result: ActionExecutionResultCode.Ok }
 		},
-		[BbcGsaasActions.Continue]: async (_id: string, payload?: Record<string, any>) =>
+		[BBCGSAASActions.Continue]: async (_id: string, payload?: Record<string, any>) =>
 			this.continue(payload as ContinuePayload | undefined),
-		[BbcGsaasActions.ClearAll]: async (_id: string, payload?: Record<string, any>) =>
+		[BBCGSAASActions.ClearAll]: async (_id: string, payload?: Record<string, any>) =>
 			this.clearAll(payload as ClearAllPayload | undefined),
-		[BbcGsaasActions.ClearZone]: async (_id: string, payload?: Record<string, any>) =>
+		[BBCGSAASActions.ClearZone]: async (_id: string, payload?: Record<string, any>) =>
 			this.clearZone(payload as ClearZonePayload | undefined),
 	}
 
@@ -284,7 +284,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 
 		for (const layer of Object.keys(state.layers)) {
 			if (!mappings[layer]) continue
-			const mapping = mappings[layer] as Mapping<SomeMappingBbcGsaas>
+			const mapping = mappings[layer] as Mapping<SomeMappingBBCGSAAS>
 			const { group, channel, mappingType } = mapping.options
 
 			const { content, id } = state.layers[layer]
@@ -307,7 +307,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 			if (content.deviceType === DeviceType.BBC_GSAAS && mapping) {
 				switch (content.type) {
 					case TimelineContentTypeBBCGSAAS.LOAD:
-						if (mappingType !== MappingBbcGsaasType.Channel) {
+						if (mappingType !== MappingBBCGSAASType.Channel) {
 							continue
 						}
 						newState[group][channel] = {
@@ -321,7 +321,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						continue
 
 					case TimelineContentTypeBBCGSAAS.UPDATE:
-						if (mappingType !== MappingBbcGsaasType.Zone) {
+						if (mappingType !== MappingBBCGSAASType.Zone) {
 							continue
 						}
 						newState[group][channel].zones[mapping.options.zone] = {
@@ -342,7 +342,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						continue
 
 					case TimelineContentTypeBBCGSAAS.UNLOAD:
-						if (mappingType !== MappingBbcGsaasType.Channel) {
+						if (mappingType !== MappingBBCGSAASType.Channel) {
 							continue
 						}
 						newState[group][channel] = {
