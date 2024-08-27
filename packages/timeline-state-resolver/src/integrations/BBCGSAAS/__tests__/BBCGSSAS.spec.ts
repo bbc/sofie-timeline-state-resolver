@@ -85,6 +85,7 @@ describe('BBC-GSAAS', () => {
 			expect(result).toStrictEqual({
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testId',
 						control: {
 							testClient: {
 								permissions: ['load'],
@@ -93,7 +94,6 @@ describe('BBC-GSAAS', () => {
 						},
 						scenes: {
 							'*': DEFAULT_SCENE,
-							tlObjId: 'testId',
 						},
 						zones: {},
 					},
@@ -260,6 +260,7 @@ describe('BBC-GSAAS', () => {
 			expect(result).toStrictEqual({
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							testClient: {
 								permissions: ['load'],
@@ -268,7 +269,6 @@ describe('BBC-GSAAS', () => {
 						},
 						scenes: {
 							'*': DEFAULT_SCENE,
-							tlObjId: 'testLoadId',
 						},
 						zones: {
 							[DEFAULT_ZONE]: {
@@ -326,6 +326,7 @@ describe('BBC-GSAAS', () => {
 			const newState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -333,7 +334,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {},
@@ -368,6 +368,7 @@ describe('BBC-GSAAS', () => {
 			const oldState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -375,7 +376,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {},
@@ -399,6 +399,7 @@ describe('BBC-GSAAS', () => {
 			const oldState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -406,7 +407,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {},
@@ -416,6 +416,7 @@ describe('BBC-GSAAS', () => {
 			const newState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'anotherLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -423,9 +424,13 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'anotherLoadId',
 							'*': DEFAULT_SCENE,
-							testId: 'anotherTestScene',
+							testId: {
+								name: 'anotherTestScene',
+								updateMode: 'aMode',
+								startupDelay: 0,
+								throttle: 0,
+							},
 						},
 						zones: {},
 					},
@@ -448,7 +453,12 @@ describe('BBC-GSAAS', () => {
 							},
 							scenes: {
 								'*': DEFAULT_SCENE,
-								testId: 'anotherTestScene',
+								testId: {
+									name: 'anotherTestScene',
+									updateMode: 'aMode',
+									startupDelay: 0,
+									throttle: 0,
+								},
 							},
 						},
 					},
@@ -460,6 +470,7 @@ describe('BBC-GSAAS', () => {
 			const oldState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -467,7 +478,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {},
@@ -477,6 +487,7 @@ describe('BBC-GSAAS', () => {
 			const newState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -484,7 +495,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {
@@ -548,6 +558,7 @@ describe('BBC-GSAAS', () => {
 			const oldState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -555,7 +566,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {
@@ -593,6 +603,7 @@ describe('BBC-GSAAS', () => {
 			const newState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -600,7 +611,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {
@@ -666,6 +676,7 @@ describe('BBC-GSAAS', () => {
 			const oldState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -673,7 +684,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {
@@ -707,6 +717,7 @@ describe('BBC-GSAAS', () => {
 			const newState: BBCGSAASDeviceState = {
 				[DEFAULT_GROUP]: {
 					[DEFAULT_CHANNEL]: {
+						tlObjId: 'testLoadId',
 						control: {
 							[DEFAULT_CLIENT_ID]: {
 								permissions: ['load'],
@@ -714,7 +725,6 @@ describe('BBC-GSAAS', () => {
 							},
 						},
 						scenes: {
-							tlObjId: 'testLoadId',
 							'*': DEFAULT_SCENE,
 						},
 						zones: {},
@@ -1163,7 +1173,12 @@ describe('BBC-GSAAS', () => {
 
 const DEFAULT_CLIENT_ID = 'testClient'
 const DEFAULT_CLIENT_PRIORITY = 1
-const DEFAULT_SCENE = 'testScene'
+const DEFAULT_SCENE = {
+	name: 'testScene',
+	updateMode: 'testMode',
+	startupDelay: 100,
+	throttle: 200,
+}
 const DEFAULT_GROUP = 'testGroup'
 const DEFAULT_CHANNEL = 'testChannel'
 const DEFAULT_ZONE = 'testZone'

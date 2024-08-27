@@ -22,7 +22,7 @@ import {
 } from 'timeline-state-resolver-types'
 
 import CacheableLookup from 'cacheable-lookup'
-import { isEqual, omit } from 'underscore'
+import { isEqual } from 'underscore'
 import got, { OptionsOfJSONResponseBody, RequestError, Response } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import { cloneDeep, t } from '../../lib'
@@ -30,23 +30,16 @@ import { cloneDeep, t } from '../../lib'
 export type BBCGSAASDeviceState = {
 	[group: string]: {
 		[channel: string]: {
+			/** Timeline Object ID for the LOAD command. */
+			tlObjId?: string
 			control: TimelineContentBBCGSAASLoad['control']
-			scenes: {
-				tlObjId?: string
-				'*'?: string
-				[id: string]: string | undefined
-			}
+			scenes: TimelineContentBBCGSAASLoad['scenes']
 			zones: {
 				[zone: string]: {
+					/** Timeline Object ID that generated this zone. */
 					tlObjId: string
-					take: {
-						id: string
-						zones: Record<string, any>
-					}
-					clear: {
-						id: string
-						zones: Record<string, any>
-					}
+					take: TimelineContentBBCGSAASUpdate['take']
+					clear: TimelineContentBBCGSAASUpdate['clear']
 				}
 			}
 		}
@@ -311,10 +304,10 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							continue
 						}
 						newState[group][channel] = {
+							tlObjId: id,
 							control: content.control,
 							scenes: {
 								...content.scenes,
-								tlObjId: id,
 							},
 							zones: {},
 						}
@@ -346,10 +339,9 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							continue
 						}
 						newState[group][channel] = {
+							tlObjId: id,
 							control: {},
-							scenes: {
-								tlObjId: id,
-							},
+							scenes: {},
 							zones: {},
 						}
 						continue
@@ -377,7 +369,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						// No keys means unload everything.
 						if (Object.keys(newChannel.scenes).length === 0) {
 							unloadCommands.push({
-								timelineObjId: newChannel.scenes.tlObjId ?? '',
+								timelineObjId: newChannel.tlObjId ?? '',
 								context: `Unloaded scenes for channel ${channelId} in group ${groupId}`,
 								command: {
 									type: TimelineContentTypeBBCGSAAS.UNLOAD,
@@ -385,9 +377,9 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 									channel: channelId,
 								},
 							})
-						} else if (!isEqual(omit(oldChannel.scenes, 'tlObjId'), omit(newChannel.scenes, 'tlObjId'))) {
+						} else if (!isEqual(oldChannel.scenes, newChannel.scenes)) {
 							loadCommands.push({
-								timelineObjId: newChannel.scenes.tlObjId ?? '',
+								timelineObjId: newChannel.tlObjId ?? '',
 								context: `Updated scenes for channel ${channelId} in group ${groupId}`,
 								command: {
 									type: TimelineContentTypeBBCGSAAS.LOAD,
@@ -395,7 +387,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 									channel: channelId,
 									payload: {
 										control: newChannel.control,
-										scenes: omit(newChannel.scenes, 'tlObjId'),
+										scenes: newChannel.scenes,
 									},
 								},
 							})
@@ -435,7 +427,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 						// New channel.
 						if (newChannel.scenes) {
 							loadCommands.push({
-								timelineObjId: newChannel.scenes.tlObjId ?? '',
+								timelineObjId: newChannel.tlObjId ?? '',
 								context: `Added channel ${channelId} to existing group ${groupId}`,
 								command: {
 									type: TimelineContentTypeBBCGSAAS.LOAD,
@@ -443,7 +435,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 									channel: channelId,
 									payload: {
 										control: newChannel.control,
-										scenes: omit(newChannel.scenes, 'tlObjId'),
+										scenes: newChannel.scenes,
 									},
 								},
 							})
@@ -471,7 +463,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 					const newChannel = newState[groupId][channelId]
 					if (newChannel.scenes) {
 						loadCommands.push({
-							timelineObjId: newChannel.scenes.tlObjId ?? '',
+							timelineObjId: newChannel.tlObjId ?? '',
 							context: `Added group ${groupId} and channel ${channelId}`,
 							command: {
 								type: TimelineContentTypeBBCGSAAS.LOAD,
@@ -479,7 +471,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 								channel: channelId,
 								payload: {
 									control: newChannel.control,
-									scenes: omit(newChannel.scenes, 'tlObjId'),
+									scenes: newChannel.scenes,
 								},
 							},
 						})
@@ -527,7 +519,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							}
 						} else {
 							unloadCommands.push({
-								timelineObjId: oldChannel.scenes.tlObjId ?? '',
+								timelineObjId: oldChannel.tlObjId ?? '',
 								context: `Removed channel ${channelId} from group ${groupId}`,
 								command: {
 									type: TimelineContentTypeBBCGSAAS.UNLOAD,
@@ -541,7 +533,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 					for (const channelId of Object.keys(oldState[groupId])) {
 						const oldChannel = oldState[groupId][channelId]
 						unloadCommands.push({
-							timelineObjId: oldChannel.scenes.tlObjId ?? '',
+							timelineObjId: oldChannel.tlObjId ?? '',
 							context: `Removed channel ${channelId} from group ${groupId}`,
 							command: {
 								type: TimelineContentTypeBBCGSAAS.UNLOAD,

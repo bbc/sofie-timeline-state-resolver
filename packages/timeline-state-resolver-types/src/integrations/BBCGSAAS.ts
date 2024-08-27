@@ -19,6 +19,13 @@ export interface TimelineContentBBCGSAASBase {
 	type: TimelineContentTypeBBCGSAAS
 }
 
+interface Scene {
+	name: string
+	updateMode: string
+	startupDelay: number
+	throttle: number
+}
+
 export type TimelineContentBBCGSAASLoad = TimelineContentBBCGSAASBase & {
 	type: TimelineContentTypeBBCGSAAS.LOAD
 	control: {
@@ -28,8 +35,8 @@ export type TimelineContentBBCGSAASLoad = TimelineContentBBCGSAASBase & {
 		}
 	}
 	scenes: {
-		'*'?: string
-		[id: string]: string | undefined
+		'*'?: Scene
+		[id: string]: Scene | undefined
 	}
 }
 
@@ -41,25 +48,12 @@ export type TimelineContentBBCGSAASUpdate = TimelineContentBBCGSAASBase & {
 	type: TimelineContentTypeBBCGSAAS.UPDATE
 	take: {
 		id: string
-		zones: {
-			[id: string]: {
-				action: 'TAKE'
-				component: string
-				priority?: number
-				immediate?: boolean
-				step?: number
-				props: Record<string, any>
-			}
-		}
+		zones: Record<string, any>
 	}
 	clear: {
 		id: string
 		zones: {
-			[id: string]: {
-				action: 'CLEAR'
-				priority?: number
-				immediate?: boolean
-			}
+			[id: string]: Record<string, any>
 		}
 	}
 }
