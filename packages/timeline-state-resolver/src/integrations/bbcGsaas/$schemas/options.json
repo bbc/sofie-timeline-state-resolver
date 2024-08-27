@@ -1,0 +1,47 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "BBC GSAAS Options",
+	"type": "object",
+	"properties": {
+		"brokerUrl": {
+			"type": "string",
+			"description": "GSAAS Broker URL",
+			"ui:title": "GSAAS Broker URL"
+		},
+		"clientId": {
+			"type": "string",
+			"description": "GSAAS Client ID",
+			"ui:title": "GSAAS Client ID"
+		},
+		"apiKey": {
+			"type": "string",
+			"description": "GSAAS API Key",
+			"ui:title": "GSAAS API Key"
+		},
+		"httpProxy": {
+			"type": "string",
+			"description": "HTTP Proxy",
+			"ui:title": "HTTP Proxy address"
+		},
+		"httpsProxy": {
+			"type": "string",
+			"description": "HTTPS Proxy",
+			"ui:title": "HTTPS Proxy address"
+		},
+		"noProxy": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "URLs not to use a proxy for (E.G. github.com)",
+			"ui:description": "URLs that shouldn't be accessed via a proxy (E.G. github.com)",
+			"ui:title": "No proxy"
+		}
+	},
+	"required": [
+		"brokerUrl",
+		"clientId",
+		"defaultPriority"
+	],
+	"additionalProperties": false
+}

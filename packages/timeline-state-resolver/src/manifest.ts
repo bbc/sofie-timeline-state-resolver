@@ -5,6 +5,9 @@ import AbstractMappings = require('./$schemas/generated/abstract/mappings.json')
 import AtemActions = require('./$schemas/generated/atem/actions.json')
 import AtemOptions = require('./$schemas/generated/atem/options.json')
 import AtemMappings = require('./$schemas/generated/atem/mappings.json')
+import BBCGSAASActions = require('./$schemas/generated/bbcGsaas/actions.json')
+import BBCGSAASOptions = require('./$schemas/generated/bbcGsaas/options.json')
+import BBCGSAASMappings = require('./$schemas/generated/bbcGsaas/mappings.json')
 import CasparCGActions = require('./$schemas/generated/casparCG/actions.json')
 import CasparCGOptions = require('./$schemas/generated/casparCG/options.json')
 import CasparCGMappings = require('./$schemas/generated/casparCG/mappings.json')
@@ -96,6 +99,12 @@ export const manifest: TSRManifest = {
 			actions: AtemActions.actions.map(stringifyActionSchema),
 			configSchema: JSON.stringify(AtemOptions),
 			mappingsSchemas: stringifyMappingSchema(AtemMappings),
+		},
+		[DeviceType.BBC_GSAAS]: {
+			displayName: generateTranslation('BBC GSAAS'),
+			actions: BBCGSAASActions.actions.map(stringifyActionSchema),
+			configSchema: JSON.stringify(BBCGSAASOptions),
+			mappingsSchemas: stringifyMappingSchema(BBCGSAASMappings),
 		},
 		[DeviceType.CASPARCG]: {
 			displayName: generateTranslation('CasparCG'),

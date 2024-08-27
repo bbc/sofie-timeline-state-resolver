@@ -17,6 +17,7 @@ import { PharosDevice } from '../integrations/pharos'
 import { TelemetricsDevice } from '../integrations/telemetrics'
 import { TriCasterDevice } from '../integrations/tricaster'
 import { SingularLiveDevice } from '../integrations/singularLive'
+import { BBCGSAASDevice } from '../integrations/bbcGsaas'
 
 export interface DeviceEntry {
 	deviceClass: new (context: DeviceContextAPI<any>) => Device<any, any, any>
@@ -28,6 +29,7 @@ export interface DeviceEntry {
 export type ImplementedServiceDeviceTypes =
 	| DeviceType.ABSTRACT
 	| DeviceType.ATEM
+	| DeviceType.BBC_GSAAS
 	| DeviceType.HTTPSEND
 	| DeviceType.HTTPWATCHER
 	| DeviceType.HYPERDECK
@@ -57,6 +59,12 @@ export const DevicesDict: Record<ImplementedServiceDeviceTypes, DeviceEntry> = {
 		canConnect: true,
 		deviceName: (deviceId: string) => 'Atem ' + deviceId,
 		executionMode: () => 'salvo',
+	},
+	[DeviceType.BBC_GSAAS]: {
+		deviceClass: BBCGSAASDevice,
+		canConnect: false,
+		deviceName: (deviceId: string) => 'BBC-GSSAS ' + deviceId,
+		executionMode: () => 'sequential',
 	},
 	[DeviceType.HTTPSEND]: {
 		deviceClass: AuthenticatedHTTPSendDevice,
