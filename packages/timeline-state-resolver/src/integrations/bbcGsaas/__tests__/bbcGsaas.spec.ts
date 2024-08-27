@@ -27,7 +27,7 @@ jest.mock('got', () => {
 // note - this import should be below the got mock
 import { BBCGSAASDevice, BBCGSAASDeviceCommand, BBCGSAASDeviceState } from '..'
 import { getDeviceContext } from '../../__tests__/testlib'
-import { literal, t } from '../../../lib'
+import { literal } from '../../../lib'
 
 async function getInitialisedBbcGsaasDevice() {
 	const dev = new BBCGSAASDevice(getDeviceContext())
