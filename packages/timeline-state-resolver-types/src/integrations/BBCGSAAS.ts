@@ -19,13 +19,6 @@ export interface TimelineContentBBCGSAASBase {
 	type: TimelineContentTypeBBCGSAAS
 }
 
-interface Scene {
-	name: string
-	updateMode: string
-	startupDelay: number
-	throttle: number
-}
-
 export type TimelineContentBBCGSAASLoad = TimelineContentBBCGSAASBase & {
 	type: TimelineContentTypeBBCGSAAS.LOAD
 	control: {
@@ -34,10 +27,7 @@ export type TimelineContentBBCGSAASLoad = TimelineContentBBCGSAASBase & {
 			priority: number
 		}
 	}
-	scenes: {
-		'*'?: Scene
-		[id: string]: Scene | undefined
-	}
+	scenes: Record<string, any>
 }
 
 export type TimelineContentBBCGSAASUnload = TimelineContentBBCGSAASBase & {
