@@ -1,8 +1,8 @@
 {
 	"$schema": "../../../$schemas/mapping-schema.json",
-	"default": "zone",
+	"default": "layer",
 	"mappings": {
-		"zone": {
+		"layer": {
 			"type": "object",
 			"properties": {
 				"group": {
@@ -17,14 +17,14 @@
 					"ui:description": "The GSAAS Channel to use",
 					"ui:summaryTitle": "Channel"
 				},
-				"zone": {
+				"layer": {
 					"type": "string",
-					"ui:title": "Zone",
-					"ui:description": "The GSAAS Zone to use",
-					"ui:summaryTitle": "Zone"
+					"ui:title": "Layer",
+					"ui:description": "Internal logic layer name",
+					"ui:summaryTitle": "Layer"
 				}
 			},
-			"required": ["group", "channel", "zone"],
+			"required": ["group", "channel", "layer"],
 			"additionalProperties": false
 		},
 		"channel": {

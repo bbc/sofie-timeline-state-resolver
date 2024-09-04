@@ -34,14 +34,12 @@ export type BBCGSAASDeviceState = {
 			tlObjId?: string
 			control: TimelineContentBBCGSAASLoad['control']
 			scenes: TimelineContentBBCGSAASLoad['scenes']
-			zones: {
-				[zone: string]: {
-					/** Timeline Object ID that generated this zone. */
-					tlObjId: string
-					take: TimelineContentBBCGSAASUpdate['take']
-					clear: TimelineContentBBCGSAASUpdate['clear']
-				}
-			}
+			objects: {
+				/** Timeline Object ID that generated this object. */
+				tlObjId: string
+				take: TimelineContentBBCGSAASUpdate['take']
+				clear: TimelineContentBBCGSAASUpdate['clear']
+			}[]
 		}
 	}
 }
@@ -162,7 +160,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		if (!payload) {
 			return {
 				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send contine: Missing payload'),
+				response: t('Failed to send clearAll: Missing payload'),
 			}
 		}
 		const { channel, group } = payload
@@ -210,56 +208,56 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		if (!payload) {
 			return {
 				result: ActionExecutionResultCode.Error,
-				response: t('Failed to send contine: Missing payload'),
+				response: t('Failed to send clearZone: Missing payload'),
 			}
 		}
 
 		const { channel, group, zone } = payload
 		const endpoint = `update/${group}/${channel}`
 
-		if (
-			this._internalState[group] &&
-			this._internalState[group][channel] &&
-			this._internalState[group][channel].zones[zone] &&
-			this._internalState[group][channel].zones[zone].clear
-		) {
-			try {
-				const response = await this.sendToBroker(endpoint, this._internalState[group][channel].zones[zone].clear)
+		if (this._internalState[group] && this._internalState[group][channel]) {
+			const obj = this._internalState[group][channel].objects.filter((o) => o.clear.zones[zone])
+			if (obj.length > 0) {
+				try {
+					const response = await this.sendToBroker(endpoint, obj[0].clear)
 
-				if (!response) {
+					if (!response) {
+						return {
+							result: ActionExecutionResultCode.Error,
+							response: t('GSAAS Broker did not respond'),
+						}
+					}
+
+					if (response.statusCode >= 200 && response.statusCode <= 299) {
+						this.context.logger.debug(
+							`BBC GSAAS: clearZone: Good statuscode response on url "${endpoint}": ${response.statusCode}`
+						)
+
+						await this.context.resetToState(this._internalState)
+						return {
+							result: ActionExecutionResultCode.Ok,
+						}
+					} else {
+						this.context.logger.warning(
+							`BBC GSAAS: clearZone Bad statuscode response on url "${endpoint}": ${response.statusCode}`
+						)
+						return {
+							result: ActionExecutionResultCode.Error,
+							response: t('GSAAS Broker responded with an error'),
+						}
+					}
+				} catch (error) {
+					const err = error as RequestError // make typescript happy
+
+					this.context.logger.error(`BBC GSAAS response error on clearZone "${endpoint}"`, err)
 					return {
 						result: ActionExecutionResultCode.Error,
-						response: t('GSAAS Broker did not respond'),
+						response: t('Failed to send command to GSAAS broker'),
 					}
 				}
-
-				if (response.statusCode >= 200 && response.statusCode <= 299) {
-					this.context.logger.debug(
-						`BBC GSAAS: clearZone: Good statuscode response on url "${endpoint}": ${response.statusCode}`
-					)
-
-					delete this._internalState[group][channel].zones[zone]
-
-					await this.context.resetToState(this._internalState)
-					return {
-						result: ActionExecutionResultCode.Ok,
-					}
-				} else {
-					this.context.logger.warning(
-						`BBC GSAAS: clearZone Bad statuscode response on url "${endpoint}": ${response.statusCode}`
-					)
-					return {
-						result: ActionExecutionResultCode.Error,
-						response: t('GSAAS Broker responded with an error'),
-					}
-				}
-			} catch (error) {
-				const err = error as RequestError // make typescript happy
-
-				this.context.logger.error(`BBC GSAAS response error on clearZone "${endpoint}"`, err)
+			} else {
 				return {
-					result: ActionExecutionResultCode.Error,
-					response: t('Failed to send command to GSAAS broker'),
+					result: ActionExecutionResultCode.Ok,
 				}
 			}
 		} else {
@@ -287,14 +285,14 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 					[channel]: {
 						control: {},
 						scenes: {},
-						zones: {},
+						objects: [],
 					},
 				}
 			} else if (!newState[group][channel]) {
 				newState[group][channel] = {
 					control: {},
 					scenes: {},
-					zones: {},
+					objects: [],
 				}
 			}
 			if (content.deviceType === DeviceType.BBC_GSAAS && mapping) {
@@ -309,29 +307,19 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							scenes: {
 								...content.scenes,
 							},
-							zones: {},
+							objects: [],
 						}
 						continue
 
 					case TimelineContentTypeBBCGSAAS.UPDATE:
-						if (mappingType !== MappingBBCGSAASType.Zone) {
+						if (mappingType !== MappingBBCGSAASType.Layer) {
 							continue
 						}
-						newState[group][channel].zones[mapping.options.zone] = {
+						newState[group][channel].objects.push({
 							tlObjId: id,
-							take: {
-								id: content.take.id,
-								zones: {
-									[mapping.options.zone]: content.take.zones[mapping.options.zone],
-								},
-							},
-							clear: {
-								id: content.clear.id,
-								zones: {
-									[mapping.options.zone]: content.clear.zones[mapping.options.zone],
-								},
-							},
-						}
+							take: content.take,
+							clear: content.clear,
+						})
 						continue
 
 					case TimelineContentTypeBBCGSAAS.UNLOAD:
@@ -342,7 +330,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							tlObjId: id,
 							control: {},
 							scenes: {},
-							zones: {},
+							objects: [],
 						}
 						continue
 				}
@@ -354,13 +342,23 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 
 	diffStates(oldState: BBCGSAASDeviceState | undefined, newState: BBCGSAASDeviceState): Array<BBCGSAASDeviceCommand> {
 		const loadCommands: Array<BBCGSAASDeviceCommand> = []
-		const sceneCommands: Array<BBCGSAASDeviceCommand> = []
 		const unloadCommands: Array<BBCGSAASDeviceCommand> = []
+		const scenesCommands: Array<BBCGSAASDeviceCommand> = []
+
+		const zonesMap: {
+			[group: string]: {
+				[channel: string]: {
+					[zone: string]: Record<string, any>
+				}
+			}
+		} = {}
 
 		for (const groupId of Object.keys(newState)) {
+			zonesMap[groupId] = {}
 			if (oldState && oldState[groupId]) {
 				// Group already exists
 				for (const channelId of Object.keys(newState[groupId])) {
+					zonesMap[groupId][channelId] = {}
 					const newChannel = newState[groupId][channelId]
 					if (oldState[groupId][channelId]) {
 						// Channel already exists.
@@ -393,34 +391,12 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							})
 						}
 
-						// Update zone if either if the take payload has changed.
-						for (const zoneId of Object.keys(newChannel.zones)) {
-							const zone = newState[groupId][channelId].zones[zoneId]
-							if (oldState[groupId][channelId].zones[zoneId]) {
-								const oldZone = oldState[groupId][channelId].zones[zoneId]
-								if (!isEqual(zone.take, oldZone.take)) {
-									sceneCommands.push({
-										timelineObjId: zone.tlObjId ?? '',
-										context: `Updated zone ${zoneId} for channel ${channelId} in group ${groupId}`,
-										command: {
-											type: TimelineContentTypeBBCGSAAS.UPDATE,
-											group: groupId,
-											channel: channelId,
-											payload: zone.take,
-										},
-									})
+						for (const obj of newChannel.objects) {
+							for (const zone of Object.keys(obj.take.zones)) {
+								if (zonesMap[groupId][channelId][zone]) {
+									this.context.logger.warning(`GSAAS Zone ${zone} is defined twice in take requests`)
 								}
-							} else {
-								sceneCommands.push({
-									timelineObjId: zone.tlObjId ?? '',
-									context: `Added zone ${zoneId} for channel ${channelId} in group ${groupId}`,
-									command: {
-										type: TimelineContentTypeBBCGSAAS.UPDATE,
-										group: groupId,
-										channel: channelId,
-										payload: zone.take,
-									},
-								})
+								zonesMap[groupId][channelId][zone] = obj.take.zones[zone]
 							}
 						}
 					} else {
@@ -440,19 +416,12 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 								},
 							})
 						}
-						if (newChannel.zones) {
-							for (const zoneId of Object.keys(newChannel.zones)) {
-								const zone = newState[groupId][channelId].zones[zoneId]
-								sceneCommands.push({
-									timelineObjId: zone.tlObjId ?? '',
-									context: `Added channel ${channelId} and zone ${zoneId} to existing group ${groupId}`,
-									command: {
-										type: TimelineContentTypeBBCGSAAS.UPDATE,
-										group: groupId,
-										channel: channelId,
-										payload: zone.take,
-									},
-								})
+						for (const obj of newChannel.objects) {
+							for (const zone of Object.keys(obj.take.zones)) {
+								if (zonesMap[zone]) {
+									this.context.logger.warning(`GSAAS Zone ${zone} is defined twice in take requests`)
+								}
+								zonesMap[groupId][channelId][zone] = obj.take.zones[zone]
 							}
 						}
 					}
@@ -460,6 +429,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 			} else {
 				// New group.
 				for (const channelId of Object.keys(newState[groupId])) {
+					zonesMap[groupId][channelId] = {}
 					const newChannel = newState[groupId][channelId]
 					if (newChannel.scenes) {
 						loadCommands.push({
@@ -476,19 +446,12 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 							},
 						})
 					}
-					if (newChannel.zones) {
-						for (const zoneId of Object.keys(newChannel.zones)) {
-							const zone = newState[groupId][channelId].zones[zoneId]
-							sceneCommands.push({
-								timelineObjId: zone.tlObjId ?? '',
-								context: `Added group ${groupId} and channel ${channelId} and zone ${zoneId}`,
-								command: {
-									type: TimelineContentTypeBBCGSAAS.UPDATE,
-									group: groupId,
-									channel: channelId,
-									payload: zone.take,
-								},
-							})
+					for (const obj of newChannel.objects) {
+						for (const zone of Object.keys(obj.take.zones)) {
+							if (zonesMap[groupId][channelId][zone]) {
+								this.context.logger.warning(`GSAAS Zone ${zone} is defined twice in take requests`)
+							}
+							zonesMap[groupId][channelId][zone] = obj.take.zones[zone]
 						}
 					}
 				}
@@ -497,24 +460,22 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 
 		if (oldState) {
 			for (const groupId of Object.keys(oldState)) {
+				if (!zonesMap[groupId]) {
+					zonesMap[groupId] = {}
+				}
 				if (newState[groupId]) {
 					for (const channelId of Object.keys(oldState[groupId])) {
+						if (!zonesMap[groupId][channelId]) {
+							zonesMap[groupId][channelId] = {}
+						}
 						const oldChannel = oldState[groupId][channelId]
 						if (newState[groupId][channelId]) {
-							const newChannel = newState[groupId][channelId]
-							for (const zoneId of Object.keys(oldChannel.zones)) {
-								if (!newChannel.zones[zoneId]) {
-									const oldZone = oldChannel.zones[zoneId]
-									sceneCommands.push({
-										timelineObjId: oldZone.tlObjId ?? '',
-										context: `Removed zone ${zoneId} from channel ${channelId} from group ${groupId}`,
-										command: {
-											type: TimelineContentTypeBBCGSAAS.UPDATE,
-											group: groupId,
-											channel: channelId,
-											payload: oldZone.clear,
-										},
-									})
+							for (const obj of oldChannel.objects) {
+								for (const zone of Object.keys(obj.take.zones)) {
+									if (zonesMap[groupId][channelId][zone]) {
+										continue
+									}
+									zonesMap[groupId][channelId][zone] = obj.clear.zones[zone]
 								}
 							}
 						} else {
@@ -546,7 +507,25 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 			}
 		}
 
-		return [...unloadCommands, ...loadCommands, ...sceneCommands]
+		for (const group of Object.keys(zonesMap)) {
+			for (const channel of Object.keys(zonesMap[group])) {
+				scenesCommands.push({
+					timelineObjId: '',
+					context: `Update payload for ${group} / ${channel}`,
+					command: {
+						type: TimelineContentTypeBBCGSAAS.UPDATE,
+						group,
+						channel,
+						payload: {
+							id: '',
+							zones: zonesMap[group][channel],
+						},
+					},
+				})
+			}
+		}
+
+		return [...unloadCommands, ...loadCommands, ...scenesCommands]
 	}
 
 	async sendCommand({ timelineObjId, context, command }: BBCGSAASDeviceCommand): Promise<void> {

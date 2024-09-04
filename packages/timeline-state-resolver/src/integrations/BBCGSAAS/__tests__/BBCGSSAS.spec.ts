@@ -8,9 +8,9 @@ import {
 	DeviceType,
 	TimelineContentBBCGSAASLoad,
 	TimelineContentBBCGSAASUpdate,
-	MappingBBCGSAASZone,
 	MappingBBCGSAASType,
 	MappingBBCGSAASChannel,
+	MappingBBCGSAASLayer,
 } from 'timeline-state-resolver-types'
 
 const MOCKED_SOCKET_POST = jest.fn()
@@ -95,7 +95,7 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			})
@@ -109,7 +109,7 @@ describe('BBC-GSAAS', () => {
 					time: 10,
 					nextEvents: [],
 					layers: {
-						[DEFAULT_ZONE]: {
+						[DEFAULT_LAYER]: {
 							id: 'testId',
 							content: literal<TimelineContentBBCGSAASUpdate>({
 								deviceType: DeviceType.BBC_GSAAS,
@@ -117,7 +117,7 @@ describe('BBC-GSAAS', () => {
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -129,7 +129,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
@@ -139,12 +139,12 @@ describe('BBC-GSAAS', () => {
 					},
 				},
 				{
-					[DEFAULT_ZONE]: {
-						options: literal<MappingBBCGSAASZone>({
-							mappingType: MappingBBCGSAASType.Zone,
+					[DEFAULT_LAYER]: {
+						options: literal<MappingBBCGSAASLayer>({
+							mappingType: MappingBBCGSAASType.Layer,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
-							zone: DEFAULT_ZONE,
+							layer: DEFAULT_LAYER,
 						}),
 					} as any,
 				}
@@ -155,13 +155,13 @@ describe('BBC-GSAAS', () => {
 					[DEFAULT_CHANNEL]: {
 						control: {},
 						scenes: {},
-						zones: {
-							[DEFAULT_ZONE]: {
+						objects: [
+							{
 								tlObjId: 'testId',
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -173,13 +173,13 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
 								},
 							},
-						},
+						],
 					},
 				},
 			})
@@ -209,7 +209,7 @@ describe('BBC-GSAAS', () => {
 								},
 							}),
 						} as any,
-						[DEFAULT_ZONE]: {
+						[DEFAULT_LAYER]: {
 							id: 'testUpdateId',
 							content: literal<TimelineContentBBCGSAASUpdate>({
 								deviceType: DeviceType.BBC_GSAAS,
@@ -217,7 +217,7 @@ describe('BBC-GSAAS', () => {
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -229,7 +229,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
@@ -246,12 +246,12 @@ describe('BBC-GSAAS', () => {
 							channel: DEFAULT_CHANNEL,
 						}),
 					} as any,
-					[DEFAULT_ZONE]: {
-						options: literal<MappingBBCGSAASZone>({
-							mappingType: MappingBBCGSAASType.Zone,
+					[DEFAULT_LAYER]: {
+						options: literal<MappingBBCGSAASLayer>({
+							mappingType: MappingBBCGSAASType.Layer,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
-							zone: DEFAULT_ZONE,
+							layer: DEFAULT_LAYER,
 						}),
 					} as any,
 				}
@@ -270,13 +270,13 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {
-							[DEFAULT_ZONE]: {
+						objects: [
+							{
 								tlObjId: 'testUpdateId',
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -288,13 +288,13 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
 								},
 							},
-						},
+						],
 					},
 				},
 			})
@@ -336,7 +336,7 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			}
@@ -361,6 +361,19 @@ describe('BBC-GSAAS', () => {
 						},
 					},
 				},
+				{
+					timelineObjId: '',
+					context: `Update payload for ${DEFAULT_GROUP} / ${DEFAULT_CHANNEL}`,
+					command: {
+						type: TimelineContentTypeBBCGSAAS.UPDATE,
+						group: DEFAULT_GROUP,
+						channel: DEFAULT_CHANNEL,
+						payload: {
+							id: '',
+							zones: {},
+						},
+					},
+				},
 			])
 		})
 
@@ -378,7 +391,7 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			}
@@ -409,7 +422,7 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			}
@@ -432,7 +445,7 @@ describe('BBC-GSAAS', () => {
 								throttle: 0,
 							},
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			}
@@ -463,6 +476,19 @@ describe('BBC-GSAAS', () => {
 						},
 					},
 				},
+				{
+					timelineObjId: '',
+					context: `Update payload for ${DEFAULT_GROUP} / ${DEFAULT_CHANNEL}`,
+					command: {
+						type: TimelineContentTypeBBCGSAAS.UPDATE,
+						group: DEFAULT_GROUP,
+						channel: DEFAULT_CHANNEL,
+						payload: {
+							id: '',
+							zones: {},
+						},
+					},
+				},
 			])
 		})
 
@@ -480,7 +506,7 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			}
@@ -497,13 +523,13 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {
-							[DEFAULT_ZONE]: {
+						objects: [
+							{
 								tlObjId: 'testUpdateId',
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -515,7 +541,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 											component: 'testComponent',
 											props: {
@@ -525,22 +551,22 @@ describe('BBC-GSAAS', () => {
 									},
 								},
 							},
-						},
+						],
 					},
 				},
 			}
 			await compareStates(oldState, newState, [
 				{
-					timelineObjId: 'testUpdateId',
-					context: `Added zone ${DEFAULT_ZONE} for channel ${DEFAULT_CHANNEL} in group ${DEFAULT_GROUP}`,
+					timelineObjId: '',
+					context: `Update payload for ${DEFAULT_GROUP} / ${DEFAULT_CHANNEL}`,
 					command: {
 						type: TimelineContentTypeBBCGSAAS.UPDATE,
 						group: DEFAULT_GROUP,
 						channel: DEFAULT_CHANNEL,
 						payload: {
-							id: 'itemId',
+							id: '',
 							zones: {
-								[DEFAULT_ZONE]: {
+								graphicZone: {
 									action: 'TAKE',
 									component: 'testComponent',
 									props: {
@@ -568,13 +594,13 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {
-							[DEFAULT_ZONE]: {
+						objects: [
+							{
 								tlObjId: 'testUpdateId',
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -586,7 +612,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 											component: 'testComponent',
 											props: {
@@ -596,7 +622,7 @@ describe('BBC-GSAAS', () => {
 									},
 								},
 							},
-						},
+						],
 					},
 				},
 			}
@@ -613,13 +639,13 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {
-							[DEFAULT_ZONE]: {
+						objects: [
+							{
 								tlObjId: 'anotherTestUpdateId',
 								take: {
 									id: 'anotherItemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -632,7 +658,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'anotherItemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 											component: 'testComponent',
 											props: {
@@ -642,22 +668,22 @@ describe('BBC-GSAAS', () => {
 									},
 								},
 							},
-						},
+						],
 					},
 				},
 			}
 			await compareStates(oldState, newState, [
 				{
-					timelineObjId: 'anotherTestUpdateId',
-					context: `Updated zone ${DEFAULT_ZONE} for channel ${DEFAULT_CHANNEL} in group ${DEFAULT_GROUP}`,
+					timelineObjId: '',
+					context: `Update payload for ${DEFAULT_GROUP} / ${DEFAULT_CHANNEL}`,
 					command: {
 						type: TimelineContentTypeBBCGSAAS.UPDATE,
 						group: DEFAULT_GROUP,
 						channel: DEFAULT_CHANNEL,
 						payload: {
-							id: 'anotherItemId',
+							id: '',
 							zones: {
-								[DEFAULT_ZONE]: {
+								graphicZone: {
 									action: 'TAKE',
 									component: 'testComponent',
 									props: {
@@ -686,13 +712,13 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {
-							[DEFAULT_ZONE]: {
+						objects: [
+							{
 								tlObjId: 'testUpdateId',
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -704,13 +730,13 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
 								},
 							},
-						},
+						],
 					},
 				},
 			}
@@ -727,22 +753,22 @@ describe('BBC-GSAAS', () => {
 						scenes: {
 							'*': DEFAULT_SCENE,
 						},
-						zones: {},
+						objects: [],
 					},
 				},
 			}
 			await compareStates(oldState, newState, [
 				{
-					timelineObjId: 'testUpdateId',
-					context: `Removed zone ${DEFAULT_ZONE} from channel ${DEFAULT_CHANNEL} from group ${DEFAULT_GROUP}`,
+					timelineObjId: '',
+					context: `Update payload for ${DEFAULT_GROUP} / ${DEFAULT_CHANNEL}`,
 					command: {
 						type: TimelineContentTypeBBCGSAAS.UPDATE,
 						group: DEFAULT_GROUP,
 						channel: DEFAULT_CHANNEL,
 						payload: {
-							id: 'itemId',
+							id: '',
 							zones: {
-								[DEFAULT_ZONE]: {
+								graphicZone: {
 									action: 'CLEAR',
 								},
 							},
@@ -842,7 +868,7 @@ describe('BBC-GSAAS', () => {
 			device
 				.sendCommand({
 					timelineObjId: 'testUpdateId',
-					context: `Added zone ${DEFAULT_ZONE} for channel ${DEFAULT_CHANNEL} in group ${DEFAULT_GROUP}`,
+					context: `Added zone ${DEFAULT_LAYER} for channel ${DEFAULT_CHANNEL} in group ${DEFAULT_GROUP}`,
 					command: {
 						type: TimelineContentTypeBBCGSAAS.UPDATE,
 						group: DEFAULT_GROUP,
@@ -850,7 +876,7 @@ describe('BBC-GSAAS', () => {
 						payload: {
 							id: 'itemId',
 							zones: {
-								[DEFAULT_ZONE]: {
+								graphicZone: {
 									action: 'TAKE',
 									component: 'testComponent',
 									props: {
@@ -877,7 +903,7 @@ describe('BBC-GSAAS', () => {
 					json: {
 						id: 'itemId',
 						zones: {
-							[DEFAULT_ZONE]: {
+							graphicZone: {
 								action: 'TAKE',
 								component: 'testComponent',
 								props: {
@@ -991,7 +1017,7 @@ describe('BBC-GSAAS', () => {
 					time: 10,
 					nextEvents: [],
 					layers: {
-						[DEFAULT_ZONE]: {
+						[DEFAULT_LAYER]: {
 							id: 'testId',
 							content: literal<TimelineContentBBCGSAASUpdate>({
 								deviceType: DeviceType.BBC_GSAAS,
@@ -999,7 +1025,7 @@ describe('BBC-GSAAS', () => {
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -1011,7 +1037,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
@@ -1021,12 +1047,12 @@ describe('BBC-GSAAS', () => {
 					},
 				},
 				{
-					[DEFAULT_ZONE]: {
-						options: literal<MappingBBCGSAASZone>({
-							mappingType: MappingBBCGSAASType.Zone,
+					[DEFAULT_LAYER]: {
+						options: literal<MappingBBCGSAASLayer>({
+							mappingType: MappingBBCGSAASType.Layer,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
-							zone: DEFAULT_ZONE,
+							layer: DEFAULT_LAYER,
 						}),
 					} as any,
 				}
@@ -1038,7 +1064,7 @@ describe('BBC-GSAAS', () => {
 					literal<ClearZonePayload>({
 						group: DEFAULT_GROUP,
 						channel: DEFAULT_CHANNEL,
-						zone: DEFAULT_ZONE,
+						zone: 'graphicZone',
 					})
 				)
 				.catch((e) => {
@@ -1061,7 +1087,7 @@ describe('BBC-GSAAS', () => {
 					json: {
 						id: 'itemId',
 						zones: {
-							[DEFAULT_ZONE]: {
+							graphicZone: {
 								action: 'CLEAR',
 							},
 						},
@@ -1078,7 +1104,7 @@ describe('BBC-GSAAS', () => {
 					time: 10,
 					nextEvents: [],
 					layers: {
-						[DEFAULT_ZONE]: {
+						[DEFAULT_LAYER]: {
 							id: 'testId',
 							content: literal<TimelineContentBBCGSAASUpdate>({
 								deviceType: DeviceType.BBC_GSAAS,
@@ -1086,7 +1112,7 @@ describe('BBC-GSAAS', () => {
 								take: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'TAKE',
 											component: 'testComponent',
 											props: {
@@ -1098,7 +1124,7 @@ describe('BBC-GSAAS', () => {
 								clear: {
 									id: 'itemId',
 									zones: {
-										[DEFAULT_ZONE]: {
+										graphicZone: {
 											action: 'CLEAR',
 										},
 									},
@@ -1108,12 +1134,12 @@ describe('BBC-GSAAS', () => {
 					},
 				},
 				{
-					[DEFAULT_ZONE]: {
-						options: literal<MappingBBCGSAASZone>({
-							mappingType: MappingBBCGSAASType.Zone,
+					[DEFAULT_LAYER]: {
+						options: literal<MappingBBCGSAASLayer>({
+							mappingType: MappingBBCGSAASType.Layer,
 							group: DEFAULT_GROUP,
 							channel: DEFAULT_CHANNEL,
-							zone: DEFAULT_ZONE,
+							layer: DEFAULT_LAYER,
 						}),
 					} as any,
 				}
@@ -1146,7 +1172,7 @@ describe('BBC-GSAAS', () => {
 				.continue('continue', {
 					group: DEFAULT_GROUP,
 					channel: DEFAULT_CHANNEL,
-					zone: DEFAULT_ZONE,
+					zone: 'testZone',
 				} as ContinuePayload)
 				.catch((e) => {
 					throw e
@@ -1159,7 +1185,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/continue/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}/${DEFAULT_ZONE}`,
+					href: `http://test/continue/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}/testZone`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -1181,4 +1207,4 @@ const DEFAULT_SCENE = {
 }
 const DEFAULT_GROUP = 'testGroup'
 const DEFAULT_CHANNEL = 'testChannel'
-const DEFAULT_ZONE = 'testZone'
+const DEFAULT_LAYER = 'testLayer'

@@ -33,11 +33,11 @@ export interface BBCGSAASOptions {
 	noProxy?: string[]
 }
 
-export interface MappingBBCGSAASZone {
+export interface MappingBBCGSAASLayer {
 	group: string
 	channel: string
-	zone: string
-	mappingType: MappingBBCGSAASType.Zone
+	layer: string
+	mappingType: MappingBBCGSAASType.Layer
 }
 
 export interface MappingBBCGSAASChannel {
@@ -47,11 +47,11 @@ export interface MappingBBCGSAASChannel {
 }
 
 export enum MappingBBCGSAASType {
-	Zone = 'zone',
+	Layer = 'layer',
 	Channel = 'channel',
 }
 
-export type SomeMappingBBCGSAAS = MappingBBCGSAASZone | MappingBBCGSAASChannel
+export type SomeMappingBBCGSAAS = MappingBBCGSAASLayer | MappingBBCGSAASChannel
 
 export interface ContinuePayload {
 	group: string

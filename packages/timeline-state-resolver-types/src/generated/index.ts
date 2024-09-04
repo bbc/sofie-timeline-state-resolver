@@ -6,14 +6,14 @@
  */
 
 export * from './action-schema'
-export * from './BBCGSAAS'
-import { SomeMappingBBCGSAAS } from './BBCGSAAS'
-
 export * from './abstract'
 import { SomeMappingAbstract } from './abstract'
 
 export * from './atem'
 import { SomeMappingAtem } from './atem'
+
+export * from './BBCGSAAS'
+import { SomeMappingBBCGSAAS } from './BBCGSAAS'
 
 export * from './casparCG'
 import { SomeMappingCasparCG } from './casparCG'
@@ -76,9 +76,9 @@ export * from './vmix'
 import { SomeMappingVmix } from './vmix'
 
 export type TSRMappingOptions =
-	| SomeMappingBBCGSAAS
 	| SomeMappingAbstract
 	| SomeMappingAtem
+	| SomeMappingBBCGSAAS
 	| SomeMappingCasparCG
 	| SomeMappingHttpSend
 	| SomeMappingHttpWatcher
