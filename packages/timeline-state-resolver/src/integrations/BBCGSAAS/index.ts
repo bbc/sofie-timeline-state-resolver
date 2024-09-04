@@ -119,7 +119,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 			}
 		}
 		const { channel, group, zone } = payload
-		const endpoint = `/continue/${group}/${channel}/${zone}`
+		const endpoint = `continue/${group}/${channel}/${zone}`
 
 		try {
 			const response = await this.sendToBroker(endpoint)
@@ -166,7 +166,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 			}
 		}
 		const { channel, group } = payload
-		const endpoint = `/clearAll/${group}/${channel}`
+		const endpoint = `clearAll/${group}/${channel}`
 
 		try {
 			const response = await this.sendToBroker(endpoint)
@@ -215,7 +215,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		}
 
 		const { channel, group, zone } = payload
-		const endpoint = `/update/${group}/${channel}`
+		const endpoint = `update/${group}/${channel}`
 
 		if (
 			this._internalState[group] &&
@@ -564,20 +564,20 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		const { group, channel, type } = command
 		let payload: Record<string, any> | undefined
 
-		let endpoint = '/'
+		let endpoint: string
 		switch (type) {
 			case TimelineContentTypeBBCGSAAS.LOAD:
-				endpoint += 'load'
+				endpoint = 'load'
 				payload = command.payload
 				break
 
 			case TimelineContentTypeBBCGSAAS.UPDATE:
-				endpoint += 'update'
+				endpoint = 'update'
 				payload = command.payload
 				break
 
 			case TimelineContentTypeBBCGSAAS.UNLOAD:
-				endpoint += 'unload'
+				endpoint = 'unload'
 				break
 
 			default:
@@ -644,7 +644,7 @@ export class BBCGSAASDevice extends Device<BBCGSAASOptions, BBCGSAASDeviceState,
 		}
 		const { apiKey, brokerUrl, clientId } = this.options
 
-		const path = brokerUrl + 'v3' + endpoint
+		const path = brokerUrl + endpoint
 		const options: OptionsOfJSONResponseBody = {
 			dnsCache: this.cacheable,
 			retry: 0,

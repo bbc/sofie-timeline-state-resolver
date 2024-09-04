@@ -785,7 +785,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/load/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/load/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -826,7 +826,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/unload/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/unload/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -868,7 +868,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/update/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/update/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -911,7 +911,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/clearAll/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/clearAll/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -942,7 +942,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/clearAll/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/clearAll/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -973,7 +973,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/clearAll/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/clearAll/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -1052,7 +1052,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/update/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
+					href: `http://test/update/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}`,
 				}),
 				expect.objectContaining({
 					headers: {
@@ -1159,7 +1159,7 @@ describe('BBC-GSAAS', () => {
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledTimes(1)
 			expect(MOCKED_SOCKET_POST).toHaveBeenCalledWith(
 				expect.objectContaining({
-					href: `http://test/v3/continue/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}/${DEFAULT_ZONE}`,
+					href: `http://test/continue/${DEFAULT_GROUP}/${DEFAULT_CHANNEL}/${DEFAULT_ZONE}`,
 				}),
 				expect.objectContaining({
 					headers: {
