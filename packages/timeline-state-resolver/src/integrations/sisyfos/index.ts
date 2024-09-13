@@ -503,7 +503,7 @@ export class SisyfosMessageDevice extends DeviceWithState<SisyfosState, DeviceOp
 		_.each(newOscSendState.channels, (newChannel: SisyfosChannel, index) => {
 			const oldChannel = oldOscSendState.channels[index]
 
-			if (newOscSendState.triggerValue && newOscSendState.triggerValue !== oldOscSendState.triggerValue) {
+			if (newOscSendState.triggerValue && oldOscSendState.triggerValue && newOscSendState.triggerValue !== oldOscSendState.triggerValue) {
 				// || (!oldChannel && Number(index) >= 0)) {
 				// push commands for everything
 				debug('reset channel ' + index)
