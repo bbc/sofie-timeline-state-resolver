@@ -92,4 +92,33 @@ describe('VMixCommandSender', () => {
 			value: 1.5,
 		})
 	})
+
+	it('sends url', async () => {
+		const { sender, mockConnection } = createTestee()
+		await sender.sendCommand({
+			command: VMixCommand.BROWSER_NAVIGATE,
+			input: 5,
+			value: 'https://example.com',
+		})
+
+		expect(mockConnection.sendCommandFunction).toHaveBeenCalledTimes(1)
+		expect(mockConnection.sendCommandFunction).toHaveBeenLastCalledWith('BrowserNavigate', {
+			input: 5,
+			value: 'https%3A%2F%2Fexample.com',
+		})
+	})
+	it('selects index', async () => {
+		const { sender, mockConnection } = createTestee()
+		await sender.sendCommand({
+			command: VMixCommand.SELECT_INDEX,
+			input: 5,
+			value: 3,
+		})
+
+		expect(mockConnection.sendCommandFunction).toHaveBeenCalledTimes(1)
+		expect(mockConnection.sendCommandFunction).toHaveBeenLastCalledWith('SelectIndex', {
+			input: 5,
+			value: 3,
+		})
+	})
 })

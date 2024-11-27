@@ -78,6 +78,8 @@ export interface VMixInput {
 	layers?: VMixLayers
 	listFilePaths?: string[]
 	restart?: boolean
+	url?: string
+	index?: number
 }
 
 export interface VMixInputAudio {
@@ -578,6 +580,28 @@ export class VMixStateDiffer {
 				command: {
 					command: VMixCommand.PLAY_INPUT,
 					input: input.name,
+				},
+				context: CommandContext.None,
+				timelineId: '',
+			})
+		}
+		if (input.url !== undefined && oldInput.url !== input.url) {
+			commands.push({
+				command: {
+					command: VMixCommand.BROWSER_NAVIGATE,
+					input: key,
+					value: input.url,
+				},
+				context: CommandContext.None,
+				timelineId: '',
+			})
+		}
+		if (input.index !== undefined && oldInput.index !== input.index) {
+			commands.push({
+				command: {
+					command: VMixCommand.SELECT_INDEX,
+					input: key,
+					value: input.index,
 				},
 				context: CommandContext.None,
 				timelineId: '',
