@@ -64,6 +64,8 @@ export class SisyfosMessageDevice extends DeviceWithState<SisyfosState, DeviceOp
 			this._connectionChanged()
 		})
 		this._sisyfos.on('mixerOnline', (onlineStatus) => {
+			if (this._sisyfos.mixerOnline === onlineStatus) return
+
 			this._sisyfos.setMixerOnline(onlineStatus)
 			this._connectionChanged()
 		})
