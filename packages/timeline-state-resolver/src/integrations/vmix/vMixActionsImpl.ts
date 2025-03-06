@@ -3,11 +3,17 @@ import {
 	ActionExecutionResultCode,
 	OpenPresetPayload,
 	SavePresetPayload,
+	VmixActionExecutionResults,
 } from 'timeline-state-resolver-types'
 import { t } from '../../lib'
 import { VMixCommandSender } from './connection'
 
-export class vMixActionsImpl {
+// TODO: should probably move this type somewhere to reuse in other devices, when needed
+export type PromisifyResult<T> = {
+	[K in keyof T]: T[K] extends (arg: infer P) => infer R ? (arg: P) => Promise<ActionExecutionResult<R>> : never
+}
+
+export class vMixActionsImpl implements PromisifyResult<VmixActionExecutionResults> {
 	constructor(private getVMixCommandSender: () => VMixCommandSender) {}
 
 	public async lastPreset(): Promise<ActionExecutionResult> {
@@ -19,7 +25,7 @@ export class vMixActionsImpl {
 		}
 	}
 
-	public async openPreset(_id: string, payload: OpenPresetPayload): Promise<ActionExecutionResult> {
+	public async openPreset(payload: OpenPresetPayload): Promise<ActionExecutionResult> {
 		const presetActionCheckResult = this._checkPresetAction(payload, true)
 		if (presetActionCheckResult) return presetActionCheckResult
 		await this.getVMixCommandSender().openPreset(payload.filename)
@@ -28,7 +34,7 @@ export class vMixActionsImpl {
 		}
 	}
 
-	public async savePreset(_id: string, payload: SavePresetPayload): Promise<ActionExecutionResult> {
+	public async savePreset(payload: SavePresetPayload): Promise<ActionExecutionResult> {
 		const presetActionCheckResult = this._checkPresetAction(payload, true)
 		if (presetActionCheckResult) return presetActionCheckResult
 		await this.getVMixCommandSender().savePreset(payload.filename)
@@ -57,7 +63,7 @@ export class vMixActionsImpl {
 		}
 	}
 
-	private _checkPresetAction(payload?: any, payloadRequired?: boolean): ActionExecutionResult | undefined {
+	private _checkPresetAction(payload?: any, payloadRequired?: boolean): ActionExecutionResult | void {
 		const connectionError = this._checkConnectionForAction()
 		if (connectionError) return connectionError
 
@@ -79,13 +85,13 @@ export class vMixActionsImpl {
 		return
 	}
 
-	private _checkConnectionForAction(): ActionExecutionResult | undefined {
+	private _checkConnectionForAction(): ActionExecutionResult | void {
 		if (!this.getVMixCommandSender().connected) {
 			return {
 				result: ActionExecutionResultCode.Error,
 				response: t('Cannot perform VMix action without a connection'),
 			}
 		}
-		return undefined
+		return
 	}
 }

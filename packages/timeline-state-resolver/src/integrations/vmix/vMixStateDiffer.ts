@@ -321,7 +321,10 @@ export class VMixStateDiffer implements VMixDefaultStateFactory {
 				newVMixState.reportedState.fadeToBlack = false
 			}
 		}
-		if (oldVMixState?.reportedState.fadeToBlack !== newVMixState.reportedState.fadeToBlack) {
+		if (
+			oldVMixState?.reportedState.fadeToBlack !== undefined &&
+			oldVMixState.reportedState.fadeToBlack !== newVMixState.reportedState.fadeToBlack
+		) {
 			// Danger: Fade to black is toggled, we can't explicitly say that we want it on or off
 			commands.push({
 				command: {

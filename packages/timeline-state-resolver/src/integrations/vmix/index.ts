@@ -208,6 +208,10 @@ export class VMixDevice extends Device<VMixOptions, VMixStateExtended, VMixState
 	 */
 	private _setPartialInputState(realState: VMixState) {
 		const expectedState = this.context.getCurrentState() // what state handler believes is the state now
+		if (expectedState === undefined) {
+			this.logger.debug('Could not get current state')
+			return // we need full state to apply anything
+		}
 		const currentState = this._stateSynchronizer.applyRealState(expectedState, realState) // what state we should aim to get to
 
 		this.context
@@ -240,7 +244,7 @@ export class VMixDevice extends Device<VMixOptions, VMixStateExtended, VMixState
 	}
 
 	public readonly actions: {
-		[id in VmixActions]: (id: string, payload?: any) => Promise<ActionExecutionResult>
+		[id in VmixActions]: (payload?: any) => Promise<ActionExecutionResult>
 	} = new vMixActionsImpl(() => this._vMixCommandSender)
 
 	/**

@@ -19,7 +19,7 @@ import { TelemetricsDevice } from '../integrations/telemetrics'
 import { TriCasterDevice } from '../integrations/tricaster'
 import { SingularLiveDevice } from '../integrations/singularLive'
 import { MultiOSCMessageDevice } from '../integrations/multiOsc'
-import { VMixDevice } from '../integrations/vmix'
+import { vMixDeviceEntry } from '../integrations/vmix/vMixDeviceEntry'
 
 export interface DeviceEntry {
 	deviceClass: new (context: DeviceContextAPI<any>) => Device<any, any, any>
@@ -166,10 +166,5 @@ export const DevicesDict: Record<ImplementedServiceDeviceTypes, DeviceEntry> = {
 		deviceName: (deviceId: string) => 'VISCAOverIP ' + deviceId,
 		executionMode: () => 'sequential',
 	},
-	[DeviceType.VMIX]: {
-		deviceClass: VMixDevice,
-		canConnect: true,
-		deviceName: (deviceId: string) => 'vMix ' + deviceId,
-		executionMode: () => 'salvo',
-	},
+	[DeviceType.VMIX]: new vMixDeviceEntry(),
 }

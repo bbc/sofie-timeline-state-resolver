@@ -24,6 +24,7 @@ const CLOCK_INTERVAL = 20
 export class StateHandler<DeviceState, Command extends CommandWithContext> {
 	private stateQueue: StateChange<DeviceState, Command>[] = []
 	private currentState: ExecutedStateChange<DeviceState, Command> | undefined
+	private pendingState: StateChange<DeviceState, Command> | undefined // the state that is becoming current, while commands are being sent out
 	/** Semaphore, to ensure that .executeNextStateChange() is only executed one at a time */
 	private _executingStateChange = false
 	private _commandExecutor: CommandExecutor<DeviceState, Command>
@@ -103,7 +104,7 @@ export class StateHandler<DeviceState, Command extends CommandWithContext> {
 	 * Returns what is considered to be the current device state
 	 **/
 	getCurrentState(): DeviceState | undefined {
-		return this.currentState?.deviceState
+		return this.currentState?.deviceState ?? this.pendingState?.deviceState
 	}
 
 	/**
@@ -208,6 +209,7 @@ export class StateHandler<DeviceState, Command extends CommandWithContext> {
 
 		newState.measurement?.executeState()
 
+		this.pendingState = newState
 		this.currentState = undefined
 
 		this._commandExecutor
@@ -220,6 +222,7 @@ export class StateHandler<DeviceState, Command extends CommandWithContext> {
 			})
 
 		this.currentState = newState as ExecutedStateChange<DeviceState, Command>
+		this.pendingState = undefined
 		this._executingStateChange = false
 
 		this.calculateNextStateChange()
