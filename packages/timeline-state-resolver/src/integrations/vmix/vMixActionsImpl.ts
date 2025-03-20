@@ -5,13 +5,8 @@ import {
 	SavePresetPayload,
 	VmixActionExecutionResults,
 } from 'timeline-state-resolver-types'
-import { t } from '../../lib'
+import { PromisifyResult, t } from '../../lib'
 import { VMixCommandSender } from './connection'
-
-// TODO: should probably move this type somewhere to reuse in other devices, when needed
-export type PromisifyResult<T> = {
-	[K in keyof T]: T[K] extends (arg: infer P) => infer R ? (arg: P) => Promise<ActionExecutionResult<R>> : never
-}
 
 export class vMixActionsImpl implements PromisifyResult<VmixActionExecutionResults> {
 	constructor(private getVMixCommandSender: () => VMixCommandSender) {}

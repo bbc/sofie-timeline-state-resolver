@@ -3,7 +3,6 @@ import { Device, DeviceContextAPI } from '../../service/device'
 
 import { VMixCommandSender, VMixConnection } from './connection'
 import {
-	DeviceOptionsVMix,
 	VMixOptions,
 	ActionExecutionResult,
 	VmixActions,
@@ -12,7 +11,7 @@ import {
 	Timeline,
 } from 'timeline-state-resolver-types'
 import { VMixState, VMixStateDiffer, VMixStateExtended } from './vMixStateDiffer'
-import { CommandContext, VMixStateCommandWithContext } from './vMixCommands'
+import { VMixStateCommandWithContext } from './vMixCommands'
 import { MappingsVmix, VMixTimelineStateConverter } from './vMixTimelineStateConverter'
 import { VMixXmlStateParser } from './vMixXmlStateParser'
 import { VMixPollingTimer } from './vMixPollingTimer'
@@ -29,23 +28,6 @@ const DEFAULT_VMIX_POLL_INTERVAL = 10 * 1000
  * How long to wait, in milliseconds, to poll vMix's state after we send commands to it.
  */
 const BACKOFF_VMIX_POLL_INTERVAL = 5 * 1000
-
-export interface DeviceOptionsVMixInternal extends DeviceOptionsVMix {
-	commandReceiver?: CommandReceiver
-}
-export type CommandReceiver = (
-	time: number,
-	cmd: VMixStateCommandWithContext,
-	context: CommandContext,
-	timelineObjId: string
-) => Promise<any>
-/*interface Command {
-	commandName: 'added' | 'changed' | 'removed'
-	content: VMixCommandContent
-	context: CommandContext
-	timelineObjId: string
-	layer: string
-}*/
 
 export type EnforceableVMixInputStateKeys = 'duration' | 'loop' | 'transform' | 'layers' | 'listFilePaths'
 
