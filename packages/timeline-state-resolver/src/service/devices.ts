@@ -20,6 +20,7 @@ import { TriCasterDevice } from '../integrations/tricaster'
 import { SingularLiveDevice } from '../integrations/singularLive'
 import { MultiOSCMessageDevice } from '../integrations/multiOsc'
 import { vMixDeviceEntry } from '../integrations/vmix/vMixDeviceEntry'
+import { SisyfosDeviceEntry } from '../integrations/sisyfos/entry'
 
 export interface DeviceEntry {
 	deviceClass: new (context: DeviceContextAPI<any>) => Device<any, any, any>
@@ -42,6 +43,7 @@ export type ImplementedServiceDeviceTypes =
 	| DeviceType.PHAROS
 	| DeviceType.SHOTOKU
 	| DeviceType.SINGULAR_LIVE
+	| DeviceType.SISYFOS
 	| DeviceType.SOFIE_CHEF
 	| DeviceType.TCPSEND
 	| DeviceType.TELEMETRICS
@@ -167,4 +169,5 @@ export const DevicesDict: Record<ImplementedServiceDeviceTypes, DeviceEntry> = {
 		executionMode: () => 'sequential',
 	},
 	[DeviceType.VMIX]: new vMixDeviceEntry(),
+	[DeviceType.SISYFOS]: new SisyfosDeviceEntry(),
 }

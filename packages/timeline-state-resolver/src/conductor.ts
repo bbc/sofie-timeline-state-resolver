@@ -45,6 +45,7 @@ import {
 	DeviceOptionsTriCaster,
 	DeviceOptionsSingularLive,
 	DeviceOptionsVMix,
+	DeviceOptionsSisyfos,
 } from 'timeline-state-resolver-types'
 
 import { DoOnTime } from './devices/doOnTime'
@@ -55,7 +56,6 @@ import { CommandWithContext } from './devices/device'
 import { DeviceContainer } from './devices/deviceContainer'
 
 import { DeviceOptionsCasparCGInternal } from './integrations/casparCG'
-import { DeviceOptionsSisyfosInternal } from './integrations/sisyfos'
 import { DeviceOptionsVizMSEInternal } from './integrations/vizMSE'
 import { BaseRemoteDeviceIntegration } from './service/remoteDeviceInstance'
 import { ConnectionManager } from './service/ConnectionManager'
@@ -1208,7 +1208,7 @@ export type DeviceOptionsAnyInternal =
 	| DeviceOptionsOBS
 	| DeviceOptionsOSC
 	| DeviceOptionsMultiOSC
-	| DeviceOptionsSisyfosInternal
+	| DeviceOptionsSisyfos
 	| DeviceOptionsSofieChef
 	| DeviceOptionsQuantel
 	| DeviceOptionsSingularLive
