@@ -45,9 +45,6 @@ export class SisyfosApi extends EventEmitter<SisyfosApiEvents> {
 			client.once('ready', () => {
 				// Monitor connectivity:
 				this._monitorConnectivity()
-
-				// Request initial, full state:
-				client.send({ address: '/state/full', args: [] })
 			})
 			client.open()
 

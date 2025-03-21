@@ -51,6 +51,9 @@ export class SisyfosMessageDevice
 		this._sisyfos.on('disconnected', () => {
 			this._connectionChanged()
 		})
+		this._sisyfos.on('initialized', () => {
+			this._connectionChanged()
+		})
 		this._sisyfos.on('mixerOnline', (onlineStatus) => {
 			if (this._sisyfos.mixerOnline === onlineStatus) return
 
