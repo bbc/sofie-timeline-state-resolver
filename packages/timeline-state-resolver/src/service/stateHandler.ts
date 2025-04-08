@@ -26,6 +26,7 @@ const CLOCK_INTERVAL = 20
 export class StateHandler<DeviceState extends Object, Command extends CommandWithContext, AddressState = any> {
 	private stateQueue: StateChange<DeviceState, Command, AddressState>[] = []
 	private currentState: ExecutedStateChange<DeviceState, Command, AddressState> | undefined
+	private pendingState: StateChange<DeviceState, Command, AddressState> | undefined // the state that is becoming current, while commands are being sent out
 	/** Semaphore, to ensure that .executeNextStateChange() is only executed one at a time */
 	private _executingStateChange = false
 	private _commandExecutor: CommandExecutor<DeviceState, Command>
@@ -42,9 +43,7 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 	) {
 		this.logger = context.logger
 
-		this.setCurrentState(undefined).catch((e) => {
-			this.logger.error('Error while creating new StateHandler', e)
-		})
+		this.setCurrentState(undefined)
 
 		this._commandExecutor = new CommandExecutor(context.logger, this.config.executionType, async (c) =>
 			device.sendCommand(c)
@@ -61,9 +60,7 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 				setTimeout(() => {
 					if (!this._executingStateChange && this.stateQueue[0] === state) {
 						// if this is the next state, execute it
-						this.executeNextStateChange().catch((e) => {
-							this.logger.error('Error while executing next state change', e)
-						})
+						this.executeNextStateChange()
 					}
 				}, nextTime)
 			}
@@ -75,11 +72,11 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 		this.stateQueue = []
 	}
 
-	async clearFutureStates() {
+	clearFutureStates() {
 		this.stateQueue = []
 	}
 
-	async handleState(state: Timeline.TimelineState<TSRTimelineContent>, mappings: Mappings) {
+	handleState(state: Timeline.TimelineState<TSRTimelineContent>, mappings: Mappings) {
 		const nextState = this.stateQueue[0]
 
 		const trace = startTrace('device:convertTimelineStateToDeviceState', { deviceId: this.context.deviceId })
@@ -103,23 +100,28 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 		if (nextState !== this.stateQueue[0]) {
 			// the next state changed
 			if (nextState) nextState.commands = undefined
-			this.calculateNextStateChange().catch((e) => {
-				this.logger.error('Error while calculating next state change', e)
-			})
+			this.calculateNextStateChange()
 		}
+	}
+
+	/**
+	 * Returns what is considered to be the current device state
+	 **/
+	getCurrentState(): DeviceState | undefined {
+		return this.currentState?.deviceState ?? this.pendingState?.deviceState
 	}
 
 	/**
 	 * Sets the current state and makes sure the commands to get to the next state are still corrects
 	 **/
-	async setCurrentState(state: DeviceState | undefined) {
+	setCurrentState(state: DeviceState | undefined) {
 		this.currentState = {
 			commands: [],
 			deviceState: state,
 			state: this.currentState?.state || { time: this.context.getCurrentTime(), layers: {}, nextEvents: [] },
 			mappings: this.currentState?.mappings || {},
 		}
-		await this.calculateNextStateChange()
+		this.calculateNextStateChange()
 	}
 
 	/**
@@ -128,7 +130,7 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 	 * @todo: this may need to be tied into _executingStateChange variable
 	 * @todo: add address states?
 	 */
-	async updateStateFromDeviceState(state: DeviceState | undefined) {
+	updateStateFromDeviceState(state: DeviceState | undefined) {
 		// update the current state to the state we received
 		const timelineState = this.currentState?.state || {
 			time: this.context.getCurrentTime(),
@@ -158,7 +160,7 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 		})
 
 		// now we let it calculate commands to get into the right state, which should be executed immediately given this state is from the past
-		await this.calculateNextStateChange()
+		this.calculateNextStateChange()
 	}
 
 	clearFutureAfterTimestamp(t: number) {
@@ -166,12 +168,10 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 	}
 
 	recalcDiff() {
-		this.calculateNextStateChange().catch((e) => {
-			this.logger.warn('Failed to calculate state change ' + e)
-		})
+		this.calculateNextStateChange()
 	}
 
-	private async calculateNextStateChange() {
+	private calculateNextStateChange() {
 		if (!this.currentState) return // a change is currently being executed, we'll be called again once it's done
 
 		const nextState = this.stateQueue[0]
@@ -227,11 +227,11 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 		}
 
 		if (nextState.state.time - (nextState.preliminary ?? 0) <= this.context.getCurrentTime() && this.currentState) {
-			await this.executeNextStateChange()
+			this.executeNextStateChange()
 		}
 	}
 
-	private async executeNextStateChange() {
+	private executeNextStateChange() {
 		if (!this.stateQueue[0] || this._executingStateChange) {
 			// there is no next to execute - or we are currently executing something
 			return
@@ -239,7 +239,7 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 		this._executingStateChange = true
 
 		if (!this.stateQueue[0].commands) {
-			await this.calculateNextStateChange()
+			this.calculateNextStateChange()
 		}
 
 		const newState = this.stateQueue.shift()
@@ -251,6 +251,7 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 
 		newState.measurement?.executeState()
 
+		this.pendingState = newState
 		this.currentState = undefined
 
 		this._commandExecutor
@@ -274,11 +275,10 @@ export class StateHandler<DeviceState extends Object, Command extends CommandWit
 		}
 
 		this.currentState = newState as ExecutedStateChange<DeviceState, Command, AddressState>
+		this.pendingState = undefined
 		this._executingStateChange = false
 
-		this.calculateNextStateChange().catch((e) => {
-			this.logger.error('Error while executing next state change', e)
-		})
+		this.calculateNextStateChange()
 	}
 }
 

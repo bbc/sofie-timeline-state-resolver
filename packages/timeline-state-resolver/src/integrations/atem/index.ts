@@ -40,7 +40,7 @@ export interface AtemCommandWithContext extends CommandWithContext {
  */
 export class AtemDevice extends Device<AtemOptions, AtemDeviceState, AtemCommandWithContext, AnyAddressState> {
 	readonly actions: {
-		[id in AtemActions]: (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>
+		[id in AtemActions]: (payload?: Record<string, any>) => Promise<ActionExecutionResult>
 	} = {
 		[AtemActions.Resync]: this.resyncState.bind(this),
 	}

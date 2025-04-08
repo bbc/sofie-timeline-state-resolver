@@ -53,7 +53,7 @@ export abstract class Device<DeviceOptions, DeviceState, Command extends Command
 	abstract get connected(): boolean
 	abstract getStatus(): Omit<DeviceStatus, 'active'>
 
-	abstract actions: Record<string, (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>>
+	abstract actions: Record<string, (payload?: Record<string, any>) => Promise<ActionExecutionResult>>
 
 	// todo - add media objects
 
@@ -202,4 +202,7 @@ export interface DeviceContextAPI<DeviceState, AddressState = void> {
 	recalcDiff: () => void
 
 	setAddressState: (address: string, state: AddressState) => void
+
+	/** Get current state */
+	getCurrentState: () => DeviceState | undefined
 }

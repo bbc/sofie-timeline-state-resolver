@@ -259,3 +259,7 @@ export function actionNotFoundMessage(id: never): ActionExecutionResult<any> {
 export function cloneDeep<T>(input: T): T {
 	return klona(input)
 }
+
+export type PromisifyResult<T> = {
+	[K in keyof T]: T[K] extends (arg: infer P) => infer R ? (arg: P) => Promise<ActionExecutionResult<R>> : never
+}
