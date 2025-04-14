@@ -6,13 +6,9 @@ import {
 	SisyfosOptions,
 	SomeMappingSisyfos,
 	MappingSisyfosType,
-	TimelineContentSisyfosAny,
-	TimelineContentTypeSisyfos,
-	SisyfosChannelOptions,
 	MappingSisyfosChannel,
 	TSRTimelineContent,
 	Timeline,
-	ResolvedTimelineObjectInstanceExtended,
 	Mapping,
 	ActionExecutionResultCode,
 	SetSisyfosChannelStatePayload,
@@ -25,6 +21,14 @@ import {
 import { SisyfosApi, SisyfosCommand, SisyfosState, SisyfosChannel, SisyfosCommandType } from './connection'
 import Debug from 'debug'
 import { PromisifyResult, t } from '../../lib'
+import {
+	addressStateFromChannelUpdate,
+	addressStateReassertsControl,
+	AnyAddressState,
+	applyAddressState,
+	convertTimelineStateToDeviceState,
+	diffAddressState,
+} from './state'
 const debug = Debug('timeline-state-resolver:sisyfos')
 
 interface Command extends CommandWithContext {
@@ -32,14 +36,14 @@ interface Command extends CommandWithContext {
 }
 
 export class SisyfosMessageDevice
-	extends Device<SisyfosOptions, SisyfosState, Command>
+	extends Device<SisyfosOptions, SisyfosState, Command, AnyAddressState>
 	implements PromisifyResult<SisyfosActionExecutionResults>
 {
 	private _sisyfos: SisyfosApi
 	private _isResyncPending = false
 	private logger: DeviceContextAPI<SisyfosState>['logger']
 
-	constructor(context: DeviceContextAPI<SisyfosState>) {
+	constructor(context: DeviceContextAPI<SisyfosState, AnyAddressState>) {
 		super(context)
 		this.logger = this.context.logger // just for convenience
 
@@ -59,6 +63,11 @@ export class SisyfosMessageDevice
 
 			this._sisyfos.setMixerOnline(onlineStatus)
 			this._connectionChanged()
+		})
+		this._sisyfos.on('updateChannel', (index, channel) => {
+			const { address, state } = addressStateFromChannelUpdate(index, channel)
+			this.context.setAddressState(address, state)
+			this.logger.debug('Update address state "' + address + '"')
 		})
 	}
 
@@ -266,175 +275,9 @@ export class SisyfosMessageDevice
 	 */
 	public convertTimelineStateToDeviceState(
 		state: Timeline.TimelineState<TSRTimelineContent>,
-		mappings: Mappings
-	): SisyfosState {
-		const deviceState: SisyfosState = this._getDeviceState(true, mappings)
-
-		// Set labels to layer names
-		for (const mapping of Object.values<Mapping<unknown>>(mappings)) {
-			const sisyfosMapping = mapping as Mapping<SomeMappingSisyfos>
-
-			if (sisyfosMapping.options.mappingType !== MappingSisyfosType.Channel) continue
-
-			if (!sisyfosMapping.options.setLabelToLayerName) continue
-
-			if (!sisyfosMapping.layerName) continue
-
-			let channel = deviceState.channels[sisyfosMapping.options.channel] as SisyfosChannel | undefined
-
-			if (!channel) {
-				channel = sisyfosMapping.options.disableDefaults ? this._getBlankStateChannel() : this._getDefaultStateChannel()
-			}
-
-			channel.label = sisyfosMapping.layerName
-
-			deviceState.channels[sisyfosMapping.options.channel] = channel
-		}
-
-		// Preparation: put all channels that comes from the state in an array:
-		const newChannels: ({
-			overridePriority: number
-			channel: number
-			isLookahead: boolean
-			timelineObjId: string
-			triggerValue?: string
-			disableDefaults?: boolean
-		} & SisyfosChannelOptions)[] = []
-
-		_.each(state.layers, (tlObject, layerName) => {
-			const layer = tlObject as ResolvedTimelineObjectInstanceExtended<any>
-			let foundMapping = mappings[layerName] as Mapping<SomeMappingSisyfos> | undefined
-
-			const content = tlObject.content as TimelineContentSisyfosAny
-
-			// Allow resync without valid channel mapping
-			if ('resync' in content && content.resync !== undefined) {
-				deviceState.resync = deviceState.resync || content.resync
-			}
-
-			// Allow global retrigger without valid channel mapping
-			if (
-				'triggerValue' in content &&
-				content.triggerValue !== undefined &&
-				content.type === TimelineContentTypeSisyfos.TRIGGERVALUE
-			) {
-				deviceState.triggerValue = content.triggerValue
-			}
-
-			// if the tlObj is specifies to load to PST the original Layer is used to resolve the mapping
-			if (!foundMapping && layer.isLookahead && layer.lookaheadForLayer) {
-				foundMapping = mappings[layer.lookaheadForLayer] as Mapping<SomeMappingSisyfos> | undefined
-			}
-
-			if (!foundMapping) return
-
-			// @ts-ignore backwards-compatibility:
-			if (!foundMapping.mappingType) foundMapping.mappingType = MappingSisyfosType.CHANNEL
-			// @ts-ignore backwards-compatibility:
-			if (content.type === 'sisyfos') content.type = TimelineContentTypeSisyfos.CHANNEL
-
-			debug(
-				`Mapping ${foundMapping.layerName}: ${foundMapping.options.mappingType}, ${
-					(foundMapping.options as any).channel || (foundMapping.options as any).label
-				}`
-			)
-
-			if (
-				foundMapping.options.mappingType === MappingSisyfosType.Channel &&
-				content.type === TimelineContentTypeSisyfos.CHANNEL
-			) {
-				newChannels.push({
-					...content,
-					channel: foundMapping.options.channel,
-					overridePriority: content.overridePriority || 0,
-					isLookahead: layer.isLookahead || false,
-					timelineObjId: layer.id,
-					triggerValue: content.triggerValue,
-					disableDefaults: foundMapping.options.disableDefaults,
-				})
-				deviceState.resync = deviceState.resync || content.resync || false
-			} else if (
-				foundMapping.options.mappingType === MappingSisyfosType.ChannelByLabel &&
-				content.type === TimelineContentTypeSisyfos.CHANNEL
-			) {
-				const ch = this._sisyfos.getChannelByLabel(foundMapping.options.label)
-				debug(`Channel by label ${foundMapping.options.label}(${ch}): ${content.isPgm}`)
-				if (ch === undefined) return
-
-				newChannels.push({
-					...content,
-					channel: ch,
-					overridePriority: content.overridePriority || 0,
-					isLookahead: layer.isLookahead || false,
-					timelineObjId: layer.id,
-					triggerValue: content.triggerValue,
-					disableDefaults: foundMapping.options.disableDefaults,
-				})
-				deviceState.resync = deviceState.resync || content.resync || false
-			} else if (
-				foundMapping.options.mappingType === MappingSisyfosType.Channels &&
-				content.type === TimelineContentTypeSisyfos.CHANNELS
-			) {
-				for (const channel of content.channels) {
-					const referencedMapping = mappings[channel.mappedLayer] as Mapping<SomeMappingSisyfos> | undefined
-					if (!referencedMapping) continue
-
-					let channelNumber: number | undefined
-					if (referencedMapping.options.mappingType === MappingSisyfosType.Channel) {
-						channelNumber = referencedMapping.options.channel
-					} else if (referencedMapping.options.mappingType === MappingSisyfosType.ChannelByLabel) {
-						channelNumber = this._sisyfos.getChannelByLabel(referencedMapping.options.label)
-						debug(`Channel by label ${referencedMapping.options.label}(${channelNumber}): ${channel.isPgm}`)
-					}
-
-					if (channelNumber === undefined) continue
-
-					newChannels.push({
-						...channel,
-						channel: channelNumber,
-						overridePriority: content.overridePriority || 0,
-						isLookahead: layer.isLookahead || false,
-						timelineObjId: layer.id,
-						triggerValue: content.triggerValue,
-						disableDefaults: foundMapping.options.disableDefaults,
-					})
-				}
-				deviceState.resync = deviceState.resync || content.resync || false
-			}
-		})
-
-		// Sort by overridePriority, so that those with highest overridePriority will be applied last
-		_.each(
-			_.sortBy(newChannels, (channel) => channel.overridePriority),
-			(newChannel) => {
-				if (!deviceState.channels[newChannel.channel]) {
-					deviceState.channels[newChannel.channel] = newChannel.disableDefaults
-						? this._getBlankStateChannel()
-						: this._getDefaultStateChannel()
-				}
-				const channel = deviceState.channels[newChannel.channel]
-
-				if (newChannel.isPgm !== undefined) {
-					if (newChannel.isLookahead) {
-						channel.pstOn = newChannel.isPgm || 0
-					} else {
-						channel.pgmOn = newChannel.isPgm || 0
-					}
-				}
-
-				if (newChannel.faderLevel !== undefined) channel.faderLevel = newChannel.faderLevel
-				if (newChannel.label !== undefined && newChannel.label !== '') channel.label = newChannel.label
-				if (newChannel.visible !== undefined) channel.visible = newChannel.visible
-				if (newChannel.fadeTime !== undefined) channel.fadeTime = newChannel.fadeTime
-				if (newChannel.muteOn !== undefined) channel.muteOn = newChannel.muteOn
-				if (newChannel.inputGain !== undefined) channel.inputGain = newChannel.inputGain
-				if (newChannel.inputSelector !== undefined) channel.inputSelector = newChannel.inputSelector
-				if (newChannel.triggerValue !== undefined) channel.triggerValue = newChannel.triggerValue
-
-				channel.timelineObjIds.push(newChannel.timelineObjId)
-			}
-		)
-		return deviceState
+		mappings: Mappings<SomeMappingSisyfos>
+	): { deviceState: SisyfosState; addressStates: Record<string, AnyAddressState> } {
+		return convertTimelineStateToDeviceState(state, mappings)
 	}
 
 	/**
@@ -443,49 +286,52 @@ export class SisyfosMessageDevice
 	public diffStates(oldSisyfosState: SisyfosState | undefined, newSisyfosState: SisyfosState): Command[] {
 		const commands: Command[] = []
 
-		if (newSisyfosState.resync && !oldSisyfosState?.resync) {
-			commands.push({
-				context: `Resyncing with Sisyfos`,
-				command: {
-					type: SisyfosCommandType.RESYNC,
-				},
-				timelineObjId: '',
-			})
-		}
+		// resync is silly when we track the device anyway, right?
+		// if (newSisyfosState.resync && !oldSisyfosState?.resync) {
+		// 	commands.push({
+		// 		context: `Resyncing with Sisyfos`,
+		// 		command: {
+		// 			type: SisyfosCommandType.RESYNC,
+		// 		},
+		// 		timelineObjId: '',
+		// 	})
+		// }
 
 		_.each(newSisyfosState.channels, (newChannel: SisyfosChannel, index) => {
 			const oldChannel: SisyfosChannel | undefined = oldSisyfosState?.channels[index]
 
-			if (newSisyfosState.triggerValue && newSisyfosState.triggerValue !== oldSisyfosState?.triggerValue) {
-				// || (!oldChannel && Number(index) >= 0)) {
-				// push commands for everything
-				debug('reset channel ' + index)
-				commands.push({
-					context: `Channel ${index} reset`,
-					command: {
-						type: SisyfosCommandType.SET_CHANNEL,
-						channel: Number(index),
-						values: newChannel,
-					},
-					timelineObjId: newChannel.timelineObjIds[0] || '',
-				})
-				return
-			}
+			// these trigger values get very confusing now that we have shared control....
 
-			if (newChannel.triggerValue && oldChannel?.triggerValue !== newChannel.triggerValue) {
-				// note - should we only do this if we have an oldchannel?
-				debug('reset channel ' + index)
-				commands.push({
-					context: `Channel ${index} reset`,
-					command: {
-						type: SisyfosCommandType.SET_CHANNEL,
-						channel: Number(index),
-						values: newChannel,
-					},
-					timelineObjId: newChannel.timelineObjIds[0] || '',
-				})
-				return
-			}
+			// if (newSisyfosState.triggerValue && newSisyfosState.triggerValue !== oldSisyfosState?.triggerValue) {
+			// 	// || (!oldChannel && Number(index) >= 0)) {
+			// 	// push commands for everything
+			// 	debug('reset channel ' + index)
+			// 	commands.push({
+			// 		context: `Channel ${index} reset`,
+			// 		command: {
+			// 			type: SisyfosCommandType.SET_CHANNEL,
+			// 			channel: Number(index),
+			// 			values: newChannel,
+			// 		},
+			// 		timelineObjId: newChannel.timelineObjIds[0] || '',
+			// 	})
+			// 	return
+			// }
+
+			// if (newChannel.triggerValue && oldChannel?.triggerValue !== newChannel.triggerValue) {
+			// 	// note - should we only do this if we have an oldchannel?
+			// 	debug('reset channel ' + index)
+			// 	commands.push({
+			// 		context: `Channel ${index} reset`,
+			// 		command: {
+			// 			type: SisyfosCommandType.SET_CHANNEL,
+			// 			channel: Number(index),
+			// 			values: newChannel,
+			// 		},
+			// 		timelineObjId: newChannel.timelineObjIds[0] || '',
+			// 	})
+			// 	return
+			// }
 
 			if (!oldChannel) return
 
@@ -624,5 +470,15 @@ export class SisyfosMessageDevice
 
 	private _connectionChanged() {
 		this.context.connectionChanged(this.getStatus())
+	}
+
+	applyAddressState(state: SisyfosState, address: string, addressState: AnyAddressState): void {
+		applyAddressState(state, address, addressState)
+	}
+	diffAddressState(state1: AnyAddressState, state2: AnyAddressState): boolean {
+		return diffAddressState(state1, state2)
+	}
+	addressStateReassertsControl(oldState: AnyAddressState | undefined, newState: AnyAddressState): boolean {
+		return addressStateReassertsControl(oldState, newState)
 	}
 }

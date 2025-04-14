@@ -12,6 +12,7 @@ interface SisyfosApiEvents {
 	mixerOnline: [boolean]
 	connected: []
 	disconnected: []
+	updateChannel: [index: number, channel: SisyfosChannelAPI]
 }
 
 export class SisyfosApi extends EventEmitter<SisyfosApiEvents> {
@@ -278,14 +279,13 @@ export class SisyfosApi extends EventEmitter<SisyfosApiEvents> {
 			this.emit('initialized')
 		} else if (address[0] === 'ch' && this._state) {
 			// This receives updates for a single channel
-			// But is not used in TSR as of now
-			// If once neeeded a new event should be implemented:
-			// like: this.emit('channel-state-changed')
 			const ch = Number(address[1]) - 1
+			const update = this.parseChannelCommand(message, address.slice(2))
 			this._state.channels[ch] = {
 				...this._state.channels[ch],
-				...this.parseChannelCommand(message, address.slice(2)),
+				...update,
 			}
+			this.emit('updateChannel', ch, this._state.channels[ch])
 		} else if (address[0] === 'pong') {
 			// a reply to "/ping"
 			const pingValue = parseInt(message.args[0].value, 10)
@@ -356,7 +356,7 @@ export class SisyfosApi extends EventEmitter<SisyfosApiEvents> {
 				pgmOn = 2
 			}
 			const channel: SisyfosChannel = {
-				faderLevel: ch.faderLevel || 0.75,
+				faderLevel: ch.faderLevel ?? 0.75,
 				pgmOn: pgmOn,
 				pstOn: ch.pstOn === true ? 1 : 0,
 				label: ch.label || '',
