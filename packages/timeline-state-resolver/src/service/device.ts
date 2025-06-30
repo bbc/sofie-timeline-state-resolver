@@ -5,8 +5,8 @@ import {
 	TSRTimelineContent,
 	Mappings,
 	DeviceStatus,
-	ActionExecutionResult,
 	MediaObject,
+	Mapping,
 } from 'timeline-state-resolver-types'
 
 /**
@@ -37,12 +37,14 @@ export type CommandWithContext<TCommand, TContext> = {
  * API for use by the DeviceInstance to be able to use a device
  */
 export abstract class Device<
-	DeviceOptions,
+	DeviceTypes extends { Options: any; Mappings: any; Actions: Record<string, any> | null },
 	DeviceState,
 	Command extends CommandWithContext<any, any>,
 	AddressState = void
 > implements BaseDeviceAPI<DeviceState, AddressState, Command>
 {
+	abstract actions: DeviceTypes['Actions']
+
 	constructor(protected context: DeviceContextAPI<DeviceState, AddressState>) {
 		// Nothing
 	}
@@ -50,7 +52,7 @@ export abstract class Device<
 	 * Initiates the device connection, after this has resolved the device
 	 * is ready to be controlled
 	 */
-	abstract init(options: DeviceOptions): Promise<boolean>
+	abstract init(options: DeviceTypes['Options']): Promise<boolean>
 	/**
 	 * Ready this class for garbage collection
 	 */
@@ -68,19 +70,17 @@ export abstract class Device<
 	abstract get connected(): boolean
 	abstract getStatus(): Omit<DeviceStatus, 'active'>
 
-	abstract actions: Record<string, (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>>
-
 	// todo - add media objects
 
 	// From BaseDeviceAPI: -----------------------------------------------
 	abstract convertTimelineStateToDeviceState(
 		state: Timeline.TimelineState<TSRTimelineContent>,
-		newMappings: Mappings
+		newMappings: Record<string, Mapping<DeviceTypes['Mappings']>>
 	): DeviceState | { deviceState: DeviceState; addressStates: Record<string, AddressState> }
 	abstract diffStates(
 		oldState: DeviceState | undefined,
 		newState: DeviceState,
-		mappings: Mappings,
+		mappings: Record<string, Mapping<DeviceTypes['Mappings']>>,
 		time: number
 	): Array<Command>
 	abstract sendCommand(command: Command): Promise<void>

@@ -5,8 +5,7 @@ import {
 	DeviceStatus,
 	HTTPSendCommandContent,
 	HTTPSendCommandContentExt,
-	HTTPSendOptions,
-	HttpSendActions,
+	HttpSendOptions,
 	SendCommandResult,
 	StatusCode,
 	TSRTimelineContent,
@@ -14,6 +13,9 @@ import {
 	TimelineContentTypeHTTP,
 	TimelineContentTypeHTTPParamType,
 	interpolateTemplateStringIfNeeded,
+	HttpSendDeviceTypes,
+	HttpSendActionMethods,
+	HttpSendActions,
 } from 'timeline-state-resolver-types'
 import _ = require('underscore')
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
@@ -32,15 +34,15 @@ export type HttpSendDeviceCommand = CommandWithContext<
 	string
 >
 
-export class HTTPSendDevice extends Device<HTTPSendOptions, HttpSendDeviceState, HttpSendDeviceCommand> {
+export class HTTPSendDevice extends Device<HttpSendDeviceTypes, HttpSendDeviceState, HttpSendDeviceCommand> {
 	/** Setup in init */
-	protected options!: HTTPSendOptions
+	protected options!: HttpSendOptions
 	/** Maps layers -> sent command-hashes */
 	protected trackedState = new Map<string, string>()
 	protected readonly cacheable = new CacheableLookup()
 	protected _terminated = false
 
-	async init(options: HTTPSendOptions): Promise<boolean> {
+	async init(options: HttpSendOptions): Promise<boolean> {
 		this.options = options
 		return true
 	}
@@ -58,12 +60,9 @@ export class HTTPSendDevice extends Device<HTTPSendOptions, HttpSendDeviceState,
 			messages: [],
 		}
 	}
-	readonly actions: {
-		[id in HttpSendActions]: (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult<any>>
-	} = {
-		[HttpSendActions.Resync]: async (_id) => this.executeResyncAction(),
-		[HttpSendActions.SendCommand]: async (_id: string, payload?: Record<string, any>) =>
-			this.executeSendCommandAction(payload as HTTPSendCommandContent | undefined),
+	readonly actions: HttpSendActionMethods = {
+		[HttpSendActions.Resync]: async () => this.executeResyncAction(),
+		[HttpSendActions.SendCommand]: async (payload) => this.executeSendCommandAction(payload),
 	}
 
 	private async executeResyncAction(): Promise<ActionExecutionResult<undefined>> {

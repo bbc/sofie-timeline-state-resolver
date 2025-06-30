@@ -1,9 +1,9 @@
 import {
 	TimelineContentTypeHTTP,
-	HTTPWatcherOptions,
-	ActionExecutionResult,
+	HttpWatcherOptions,
 	StatusCode,
 	DeviceStatus,
+	HttpWatcherDeviceTypes,
 } from 'timeline-state-resolver-types'
 import got, { Headers, Response } from 'got'
 import { CommandWithContext, Device } from '../../service/device'
@@ -17,11 +17,11 @@ type HTTPWatcherCommandWithContext = CommandWithContext<never, never>
  * it's response.
  */
 export class HTTPWatcherDevice extends Device<
-	HTTPWatcherOptions,
+	HttpWatcherDeviceTypes,
 	HTTPWatcherDeviceState,
 	HTTPWatcherCommandWithContext
 > {
-	readonly actions: Record<string, (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>> = {}
+	readonly actions = null
 
 	private uri?: string
 	/** Setup in init */
@@ -77,7 +77,7 @@ export class HTTPWatcherDevice extends Device<
 		}
 	}
 
-	async init(options: HTTPWatcherOptions): Promise<boolean> {
+	async init(options: HttpWatcherOptions): Promise<boolean> {
 		switch (options.httpMethod) {
 			case 'post':
 				this.httpMethod = TimelineContentTypeHTTP.POST

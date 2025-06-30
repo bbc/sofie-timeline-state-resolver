@@ -1,10 +1,10 @@
 import {
-	ActionExecutionResult,
 	DeviceStatus,
 	DeviceType,
 	OSCDeviceType,
+	OscDeviceTypes,
 	OSCMessageCommandContent,
-	OSCOptions,
+	OscOptions,
 	OSCValueType,
 	SomeOSCValue,
 	StatusCode,
@@ -29,7 +29,7 @@ interface OSCDeviceStateContent extends OSCMessageCommandContent {
 
 export type OscCommandWithContext = CommandWithContext<OSCDeviceStateContent, string>
 
-export class OscDevice extends Device<OSCOptions, OscDeviceState, OscCommandWithContext> {
+export class OscDevice extends Device<OscDeviceTypes, OscDeviceState, OscCommandWithContext> {
 	/** Setup in init */
 	private _oscClient!: osc.UDPPort | osc.TCPSocketPort
 	private _oscClientStatus: 'connected' | 'disconnected' = 'disconnected'
@@ -39,9 +39,9 @@ export class OscDevice extends Device<OSCOptions, OscDeviceState, OscCommandWith
 		} & OSCMessageCommandContent
 	} = {}
 	private transitionInterval: NodeJS.Timer | undefined
-	private options: OSCOptions | undefined
+	private options: OscOptions | undefined
 
-	async init(options: OSCOptions): Promise<boolean> {
+	async init(options: OscOptions): Promise<boolean> {
 		this.options = options
 		if (options.type === OSCDeviceType.TCP) {
 			debug('Creating TCP OSC device')
@@ -215,7 +215,7 @@ export class OscDevice extends Device<OSCOptions, OscDeviceState, OscCommandWith
 		}
 	}
 
-	readonly actions: Record<string, (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>> = {}
+	readonly actions = null
 
 	private _oscSender(msg: osc.OscMessage, address?: string | undefined, port?: number | undefined): void {
 		this.context.logger.debug('sending ' + msg.address)

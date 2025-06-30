@@ -5,12 +5,12 @@ import {
 	Mappings,
 	Timeline,
 	TSRTimelineContent,
-	MultiOSCOptions,
+	MultiOscOptions,
 	SomeMappingMultiOsc,
 	Mapping,
 	DeviceStatus,
 	StatusCode,
-	ActionExecutionResult,
+	MultiOscDeviceTypes,
 } from 'timeline-state-resolver-types'
 import { Device } from '../../service/device'
 import { OSCConnection } from './deviceConnection'
@@ -39,8 +39,12 @@ export type MultiOscCommandWithContext = CommandWithContext<OSCDeviceStateConten
 /**
  * This is a generic wrapper for any osc-enabled device.
  */
-export class MultiOSCMessageDevice extends Device<MultiOSCOptions, MultiOSCDeviceState, MultiOscCommandWithContext> {
-	readonly actions: Record<string, (id: string, payload?: Record<string, any>) => Promise<ActionExecutionResult>> = {}
+export class MultiOSCMessageDevice extends Device<
+	MultiOscDeviceTypes,
+	MultiOSCDeviceState,
+	MultiOscCommandWithContext
+> {
+	readonly actions = null
 
 	private _connections: Record<string, OSCConnection> = {}
 	private _commandQueue: Array<MultiOscCommandWithContext> = []
@@ -48,7 +52,7 @@ export class MultiOSCMessageDevice extends Device<MultiOSCOptions, MultiOSCDevic
 
 	private _timeBetweenCommands: number | undefined
 
-	async init(initOptions: MultiOSCOptions, testOptions?: MultiOscInitTestOptions): Promise<boolean> {
+	async init(initOptions: MultiOscOptions, testOptions?: MultiOscInitTestOptions): Promise<boolean> {
 		this._timeBetweenCommands = initOptions.timeBetweenCommands
 
 		for (const connOptions of initOptions.connections) {

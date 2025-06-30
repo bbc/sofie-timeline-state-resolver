@@ -52,7 +52,7 @@ import { DoOnTime } from './devices/doOnTime'
 import { AsyncResolver } from './AsyncResolver'
 import { endTrace, FinishedTrace, startTrace } from './lib'
 
-import { CommandWithContext } from './devices/device'
+import { CommandWithContext } from './service/device'
 import { DeviceContainer } from './devices/deviceContainer'
 
 import { DeviceOptionsCasparCGInternal } from './integrations/casparCG'
