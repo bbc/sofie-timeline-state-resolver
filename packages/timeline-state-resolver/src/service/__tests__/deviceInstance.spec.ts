@@ -3,6 +3,7 @@ import { DeviceInstanceWrapper } from '../DeviceInstance'
 import { ActionExecutionResultCode } from 'timeline-state-resolver-types'
 import { t } from '../../lib'
 import { DevicesDict } from '../devices'
+import { waitTime } from '../../__tests__/lib'
 
 const StateHandler = {
 	terminate: jest.fn(),
@@ -206,25 +207,34 @@ describe('DeviceInstance', () => {
 	})
 
 	test('getCurrentTime', async () => {
-		const getRemoteTime = jest.fn(async () => Date.now() - 10)
+		const TIME_DIFF = -100
+		const getRemoteTime = jest.fn(async () => Date.now() + TIME_DIFF)
 		const dev = getDeviceInstance(getRemoteTime) // simulate 10ms ipc delay
-		// wait for the first sync to happen
-		await new Promise<void>((r) => setTimeout(() => r(), 10))
-		expect(getRemoteTime).toHaveBeenCalledTimes(1)
 
-		const t = dev.getCurrentTime()
-		// it may be a bit delayed
-		expect(t).toBeGreaterThanOrEqual(Date.now() - 12)
-		// it should never be faster
-		expect(t).toBeLessThanOrEqual(Date.now() - 10)
+		{
+			// wait for the first sync to happen
+			await waitTime(10)
+			expect(getRemoteTime).toHaveBeenCalledTimes(1)
 
-		// check that this still works after a bit of delay
-		await new Promise<void>((r) => setTimeout(() => r(), 250))
-		expect(getRemoteTime).toHaveBeenCalledTimes(1)
+			const t = dev.getCurrentTime()
+			const expectedTime = Date.now() + TIME_DIFF
 
-		const t2 = dev.getCurrentTime()
-		expect(t2).toBeGreaterThanOrEqual(Date.now() - 12)
-		expect(t2).toBeLessThanOrEqual(Date.now() - 10)
+			// it may be a bit delayed
+			expect(t).toBeGreaterThanOrEqual(expectedTime - 10)
+			// it should never be faster
+			expect(t).toBeLessThanOrEqual(expectedTime + 10)
+		}
+		{
+			// check that this still works after a bit of delay
+			await waitTime(250)
+			expect(getRemoteTime).toHaveBeenCalledTimes(1)
+
+			const t = dev.getCurrentTime()
+			const expectedTime = Date.now() + TIME_DIFF
+
+			expect(t).toBeGreaterThanOrEqual(expectedTime - 10)
+			expect(t).toBeLessThanOrEqual(expectedTime + 10)
+		}
 	})
 
 	test('init device with shared hardware control', async () => {

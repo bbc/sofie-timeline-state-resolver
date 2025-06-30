@@ -119,9 +119,7 @@ describe('stateHandler', () => {
 				console.error('Error while setting current state', e)
 			})
 
-		stateHandler.handleState(createTimelineState(10000, {}), {}).catch((e) => {
-			console.error('Error while handling state', e)
-		})
+		await stateHandler.handleState(createTimelineState(10000, {}), {})
 
 		await mockTime.tick()
 
@@ -145,9 +143,7 @@ describe('stateHandler', () => {
 				console.error('Error while setting current state', e)
 			})
 
-		stateHandler.handleState(createTimelineState(10000, {}), {}).catch((e) => {
-			console.error('Error while handling state', e)
-		})
+		await stateHandler.handleState(createTimelineState(10000, {}), {})
 
 		await mockTime.tick()
 
@@ -159,16 +155,12 @@ describe('stateHandler', () => {
 			},
 		})
 
-		stateHandler
-			.handleState(
-				createTimelineState(10100, {
-					entry1: { value: true },
-				}),
-				{}
-			)
-			.catch((e) => {
-				console.error('Error while handling state', e)
-			})
+		await stateHandler.handleState(
+			createTimelineState(10100, {
+				entry1: { value: true },
+			}),
+			{}
+		)
 
 		await mockTime.tick()
 
@@ -196,22 +188,18 @@ describe('stateHandler', () => {
 			console.error('Error while setting current state', e)
 		})
 
-		stateHandler
-			.handleState(
-				createTimelineState(12000, {
-					entry1: {
-						value: true,
-						preliminary: 300,
-					},
-					entry2: {
-						value: true,
-					},
-				}),
-				{}
-			)
-			.catch((e) => {
-				console.error('Error while handling state', e)
-			})
+		await stateHandler.handleState(
+			createTimelineState(12000, {
+				entry1: {
+					value: true,
+					preliminary: 300,
+				},
+				entry2: {
+					value: true,
+				},
+			}),
+			{}
+		)
 
 		await mockTime.tick()
 
@@ -248,9 +236,7 @@ describe('stateHandler', () => {
 			.catch((e) => {
 				console.error('Error while setting current state', e)
 			})
-		stateHandler.handleState(createTimelineState(10000, {}), {}).catch((e) => {
-			console.error('Error while handling state', e)
-		})
+		await stateHandler.handleState(createTimelineState(10000, {}), {})
 
 		await mockTime.tick()
 
@@ -262,16 +248,12 @@ describe('stateHandler', () => {
 			},
 		})
 
-		stateHandler
-			.handleState(
-				createTimelineState(10100, {
-					entry1: { value: true },
-				}),
-				{}
-			)
-			.catch((e) => {
-				console.error('Error while handling state', e)
-			})
+		await stateHandler.handleState(
+			createTimelineState(10100, {
+				entry1: { value: true },
+			}),
+			{}
+		)
 
 		await mockTime.tick()
 		// do not expect to be called because this is in the future
@@ -293,9 +275,7 @@ describe('stateHandler', () => {
 		//
 		MOCK_COMMAND_RECEIVER.mockReset()
 
-		stateHandler.handleState(createTimelineState(10000, {}), {}).catch((e) => {
-			console.error('Error while handling state', e)
-		})
+		await stateHandler.handleState(createTimelineState(10000, {}), {})
 
 		await mockTime.tick()
 
@@ -317,16 +297,12 @@ describe('stateHandler', () => {
 			.catch((e) => {
 				console.error('Error while setting current state', e)
 			})
-		stateHandler
-			.handleState(
-				createTimelineState(10000, {
-					entry1: { value: true },
-				}),
-				{}
-			)
-			.catch((e) => {
-				console.error('Error while handling state', e)
-			})
+		await stateHandler.handleState(
+			createTimelineState(10000, {
+				entry1: { value: true },
+			}),
+			{}
+		)
 
 		await mockTime.tick()
 		expect(StateTrackerMock.getAllAddresses).toHaveBeenCalled()
