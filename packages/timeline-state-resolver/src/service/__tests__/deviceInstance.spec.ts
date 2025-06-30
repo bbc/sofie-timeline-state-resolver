@@ -62,7 +62,7 @@ const AtemDeviceMock = {
 	sendCommand: jest.fn(),
 	on: jest.fn(),
 	applyAddressState: jest.fn(),
-	diffAddressState: jest.fn(),
+	diffAddressStates: jest.fn(),
 	addressStateReassertsControl: jest.fn(),
 }
 jest.mock('../../integrations/atem/index', () => ({
@@ -81,7 +81,7 @@ jest.mock('../../integrations/atem/index', () => ({
 		sendCommand = AtemDeviceMock.sendCommand
 		on = AtemDeviceMock.on
 		applyAddressState = AtemDeviceMock.applyAddressState
-		diffAddressState = AtemDeviceMock.diffAddressState
+		diffAddressStates = AtemDeviceMock.diffAddressStates
 		addressStateReassertsControl = AtemDeviceMock.addressStateReassertsControl
 	},
 }))

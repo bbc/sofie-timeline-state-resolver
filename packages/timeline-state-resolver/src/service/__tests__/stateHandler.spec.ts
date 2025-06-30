@@ -55,7 +55,7 @@ jest.mock('../stateTracker', () => ({
 }))
 const deviceTrackerMethodsImpl = {
 	applyAddressState: jest.fn(),
-	diffAddressState: jest.fn(),
+	diffAddressStates: jest.fn(),
 	addressStateReassertsControl: jest.fn(() => true),
 }
 import { StateTracker } from '../stateTracker'
