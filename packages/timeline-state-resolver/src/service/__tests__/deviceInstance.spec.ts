@@ -89,12 +89,13 @@ jest.mock('../../integrations/atem/index', () => ({
 // jest.mock('../StateTracker', () => ({ StateTracker: jest.fn().mockImplementation(() => ({})) }))
 
 function getDeviceInstance(getTime = async () => Date.now()): DeviceInstanceWrapper {
-	return new DeviceInstanceWrapper('wrapper0', Date.now(), { type: DeviceType.ABSTRACT }, getTime)
+	return new DeviceInstanceWrapper('wrapper0', Date.now(), null, { type: DeviceType.ABSTRACT }, getTime)
 }
 function getDeviceInstanceWithTracker(getTime = async () => Date.now(), disable = false): DeviceInstanceWrapper {
 	return new DeviceInstanceWrapper(
 		'wrapper0',
 		Date.now(),
+		null,
 		{ type: DeviceType.ATEM, disableSharedHardwareControl: disable },
 		getTime
 	)

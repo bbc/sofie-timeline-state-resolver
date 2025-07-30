@@ -13,7 +13,8 @@ import {
 import { EventEmitter } from 'eventemitter3'
 import { CommandReport, DoOnTime, SlowFulfilledCommandInfo, SlowSentCommandInfo } from './doOnTime'
 import { ExpectedPlayoutItem } from '../expectedPlayoutItems'
-import { actionNotFoundMessage, FinishedTrace } from '../lib'
+import { actionNotFoundMessage } from '../lib'
+import type { FinishedTrace } from 'timeline-state-resolver-api'
 import { CommandWithContext, DeviceEvents } from '../service/device'
 
 // =================================================================================================
