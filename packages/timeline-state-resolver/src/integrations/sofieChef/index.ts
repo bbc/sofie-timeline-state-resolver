@@ -43,7 +43,7 @@ const RECONNECT_WAIT_TIME = 5000
 
 /**
  * This is a wrapper for a SofieChef-devices,
- * https://github.com/nrkno/sofie-chef
+ * https://github.com/Sofie-Automation/sofie-chef
  */
 export class SofieChefDevice extends Device<SofieChefDeviceTypes, SofieChefState, SofieChefCommandWithContext> {
 	readonly actions: SofieChefActionMethods = {

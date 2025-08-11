@@ -5,7 +5,7 @@ import got from '../../../__mocks__/got'
 
 /*
 	This file mocks the server-side part of the Quantel Gateway, ie the REST interface of
-	https://github.com/nrkno/tv-automation-quantel-gateway
+	https://github.com/Sofie-Automation/sofie-quantel-gateway
 */
 
 export function setupQuantelGatewayMock() {
