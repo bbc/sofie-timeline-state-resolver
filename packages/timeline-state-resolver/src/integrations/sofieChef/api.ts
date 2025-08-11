@@ -1,5 +1,5 @@
 // Note: The contents of this file is copied from Sofie Chef
-// here: https://github.com/nrkno/sofie-chef/blob/main/src/lib/api.ts
+// here: https://github.com/Sofie-Automation/sofie-chef/blob/main/src/lib/api.ts
 //
 // Also note that "Receive" and "Send" here refers to the SofieChef side (so "Receive" means "send" to us).
 

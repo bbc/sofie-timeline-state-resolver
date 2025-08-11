@@ -1,15 +1,15 @@
 # Sofie Timeline State Resolver (TSR)
 
-[![Node CI](https://github.com/nrkno/sofie-timeline-state-resolver/actions/workflows/node.yaml/badge.svg)](https://github.com/nrkno/sofie-timeline-state-resolver/actions/workflows/node.yaml)
-[![codecov](https://codecov.io/gh/nrkno/sofie-timeline-state-resolver/branch/master/graph/badge.svg)](https://codecov.io/gh/nrkno/sofie-timeline-state-resolver)
+[![Node CI](https://github.com/Sofie-Automation/sofie-timeline-state-resolver/actions/workflows/node.yaml/badge.svg)](https://github.com/Sofie-Automation/sofie-timeline-state-resolver/actions/workflows/node.yaml)
+[![codecov](https://codecov.io/gh/Sofie-Automation/sofie-timeline-state-resolver/branch/master/graph/badge.svg)](https://codecov.io/gh/Sofie-Automation/sofie-timeline-state-resolver)
 
-This is the _Timeline State Resolver (TSR)_ library, part of the [**Sofie** TV Automation System](https://github.com/nrkno/Sofie-TV-automation/). This library orchestrates and controls different devices. Its input is a [timeline](https://github.com/SuperFlyTV/supertimeline) data structure and a layer-to-device-map.
+This is the _Timeline State Resolver (TSR)_ library, part of the [**Sofie** TV Automation System](https://github.com/Sofie-Automation/Sofie-TV-automation/). This library orchestrates and controls different devices. Its input is a [timeline](https://github.com/SuperFlyTV/supertimeline) data structure and a layer-to-device-map.
 Using this input, it resolves the expected state, diffs the state against current state, and sends commands to devices where necessary.
 
 ## General Sofie System Information
 
-- [_Sofie_ Documentation](https://nrkno.github.io/sofie-core/)
-- [_Sofie_ Releases](https://nrkno.github.io/sofie-core/releases)
+- [_Sofie_ Documentation](https://Sofie-Automation.github.io/sofie-core/)
+- [_Sofie_ Releases](https://Sofie-Automation.github.io/sofie-core/releases)
 - [Contribution Guidelines](CONTRIBUTING.md)
 - [License](LICENSE)
 
@@ -18,9 +18,9 @@ Using this input, it resolves the expected state, diffs the state against curren
 ## Supported Devices
 
 - **[CasparCG](http://casparcg.com/)** - using the [casparcg-connection](https://github.com/SuperFlyTV/casparcg-connection) library
-- **Blackmagic Design ATEM** vision mixers - using the [atem-connection](https://github.com/nrkno/tv-automation-atem-connection) library
-- **Blackmagic Design Hyperdeck** record/playback devices - using the [hyperdeck-connection](https://github.com/nrkno/tv-automation-hyperdeck-connection) library
-- **Lawo** audio mixers - using the [emberplus](https://github.com/nrkno/tv-automation-emberplus-connection) library
+- **Blackmagic Design ATEM** vision mixers - using the [atem-connection](https://github.com/Sofie-Automation/sofie-atem-connection) library
+- **Blackmagic Design Hyperdeck** record/playback devices - using the [hyperdeck-connection](https://github.com/Sofie-Automation/sofie-hyperdeck-connection) library
+- **Lawo** audio mixers - using the [emberplus](https://github.com/Sofie-Automation/sofie-emberplus-connection) library
 - **[OBS Studio](https://obsproject.com/)** live video production software (currently not supporting v29)
 - **Panasoniz PTZ** cameras
 - **Pharos** light control devices
@@ -30,7 +30,7 @@ Using this input, it resolves the expected state, diffs the state against curren
 - **VizRT MediaSequencer** graphics system - using the [v-connection](https://github.com/tv2/v-connection) library
 - **Shotoku TR-XT** camera robotics
 - **Singular Live Graphics**
-- **[Sofie Chef](https://github.com/nrkno/sofie-chef)**
+- **[Sofie Chef](https://github.com/Sofie-Automation/sofie-chef)**
 - **Telemetrics** camera robotics
 - **Newtek Tricaster** video mixers
 - **[VISCA over IP](https://en.wikipedia.org/wiki/VISCA_Protocol)** camera control

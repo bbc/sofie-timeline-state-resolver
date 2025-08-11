@@ -542,7 +542,7 @@ export class Conductor extends EventEmitter<ConductorEvents> {
 			// }).catch(error => {
 			// 	this.emit('error', error)
 			// })
-			// TODO - the PAll way of doing this provokes https://github.com/nrkno/tv-automation-state-timeline-resolver/pull/139
+			// TODO - the PAll way of doing this provokes https://github.com/Sofie-Automation/sofie-timeline-state-resolver/pull/139
 			// The doOnTime calls fire before this, meaning we cleanup the state for a time we have already sent commands for
 			const pPrepareForHandleStates: Promise<unknown> = Promise.all(
 				this.connectionManager

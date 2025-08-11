@@ -1,30 +1,30 @@
-
 # Timeline State Resolver
 
 ## Abstract
+
 This library orchestrates and controls different devices.
 Its input is a [timeline](https://github.com/SuperFlyTV/supertimeline) data structure and a layer-to-device-map.
 Using the input, it resolves the expected state, diffs the state against current state and sends commands to devices where necessary.
 
 ## Supported devices
-* **[CasparCG](http://casparcg.com/)** - using the [casparcg-connection](https://github.com/SuperFlyTV/casparcg-connection) library
-* **Blackmagic Design ATEM** vision mixers - using the [atem-connection](https://github.com/nrkno/tv-automation-atem-connection) library
-* **Blackmagic Design Hyperdeck** record/playback devices - using the [hyperdeck-connection](https://github.com/nrkno/tv-automation-hyperdeck-connection) library
-* **Lawo** audio mixers - using the [emberplus](https://github.com/nrkno/tv-automation-emberplus-connection) library
-* **Panasoniz PTZ** cameras
-* **Pharos** light control devices
-* **[Sisyfos](https://github.com/olzzon/sisyfos-audio-controller)** audio controller
-* **Quantel** video server
-* **[vMix](https://www.vmix.com/)** software vision mixer
-* **VizRT MediaSequencer** graphics system - using the [v-connection](https://github.com/olzzon/v-connection) library
-* Arbitrary [OSC](https://en.wikipedia.org/wiki/Open_Sound_Control) compatible devices
-* Arbitrary HTTP (REST) compatible devices
-* Arbitrary TCP-socket compatible devices
 
+- **[CasparCG](http://casparcg.com/)** - using the [casparcg-connection](https://github.com/SuperFlyTV/casparcg-connection) library
+- **Blackmagic Design ATEM** vision mixers - using the [atem-connection](https://github.com/Sofie-Automation/sofie-atem-connection) library
+- **Blackmagic Design Hyperdeck** record/playback devices - using the [hyperdeck-connection](https://github.com/Sofie-Automation/sofie-hyperdeck-connection) library
+- **Lawo** audio mixers - using the [emberplus](https://github.com/Sofie-Automation/sofie-emberplus-connection) library
+- **Panasoniz PTZ** cameras
+- **Pharos** light control devices
+- **[Sisyfos](https://github.com/olzzon/sisyfos-audio-controller)** audio controller
+- **Quantel** video server
+- **[vMix](https://www.vmix.com/)** software vision mixer
+- **VizRT MediaSequencer** graphics system - using the [v-connection](https://github.com/olzzon/v-connection) library
+- Arbitrary [OSC](https://en.wikipedia.org/wiki/Open_Sound_Control) compatible devices
+- Arbitrary HTTP (REST) compatible devices
+- Arbitrary TCP-socket compatible devices
 
 ## Development
 
-TSR is primarily developed to be used in the [Playout Gateway](https://github.com/nrkno/tv-automation-playout-gateway) of the [Sofie project](https://github.com/nrkno/Sofie-TV-automation).
+TSR is primarily developed to be used in the [Playout Gateway](https://github.com/Sofie-Automation/sofie-core/tree/main/packages/playout-gateway) of the [Sofie project](https://github.com/Sofie-Automation/Sofie-TV-automation).
 
 When developing support for new devices, a helpful tool for quickly trying out new functionality is the [Quick-TSR repo](https://github.com/nytamin/quickTSR).
 
@@ -32,19 +32,19 @@ When developing support for new devices, a helpful tool for quickly trying out n
 
 ### Prerequisites
 
-* Install yarn
-	https://yarnpkg.com
+- Install yarn
+  https://yarnpkg.com
 
-* Install dependencies
-	`yarn`
+- Install dependencies
+  `yarn`
 
 ### Build and test
 
-* Build:
-	`yarn build`
+- Build:
+  `yarn build`
 
-* Run test & view coverage
-	`yarn cov`
+- Run test & view coverage
+  `yarn cov`
 
 # Examples of timeline objects
 
@@ -53,6 +53,7 @@ Here follows some examples of valid mappings and timeline-objects to control dev
 ## CasparCG
 
 ### Playing a video
+
 Play the video clip "AMB" for 5 seconds
 
 ```typescript
@@ -81,10 +82,13 @@ Play the video clip "AMB" for 5 seconds
 	}
 }
 ```
+
 ## Blackmagic Design ATEM
 
 ### Cut to source
+
 Cut to source 2 on ME1
+
 ```typescript
 // Mapping:
 {
@@ -117,7 +121,9 @@ Cut to source 2 on ME1
 ## Blackmagic Design Hyperdeck
 
 ### Record a clip
+
 Start recording of a clip, and record it for 10 secods
+
 ```typescript
 // Mapping:
 {
@@ -145,10 +151,13 @@ Start recording of a clip, and record it for 10 secods
 	}
 }
 ```
+
 ## Lawo audio mixer
 
 ### Pull up a fader
+
 Pull up a fader, and leave it there
+
 ```typescript
 // Mapping:
 {
@@ -179,6 +188,7 @@ Pull up a fader, and leave it there
 ## Panasoniz PTZ
 
 ### Recall a preset
+
 ```typescript
 // Mapping:
 {
@@ -235,7 +245,9 @@ Pull up a fader, and leave it there
 ## Sisyfos audio controller
 
 ### Activate channel 3
+
 Activate channel 3 on sisyfos pgm output
+
 ```typescript
 // Mapping:
 {
@@ -305,6 +317,7 @@ Activate channel 3 on sisyfos pgm output
 ## Quantel video server
 
 ### Play a video
+
 Play a video for 10 seconds
 
 ```typescript
@@ -338,6 +351,7 @@ Play a video for 10 seconds
 ## Arbitrary HTTP-interface
 
 ### Send a POST request
+
 Send a POST Request to a URL
 
 ```typescript
@@ -367,4 +381,3 @@ Send a POST Request to a URL
 	}
 }
 ```
-
