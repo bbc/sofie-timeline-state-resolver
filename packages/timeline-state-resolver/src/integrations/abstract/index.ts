@@ -2,7 +2,6 @@ import {
 	AbstractOptions,
 	Timeline,
 	TSRTimelineContent,
-	DeviceOptionsAbstract,
 	AbstractActionMethods,
 	ActionExecutionResultCode,
 	AbstractDeviceTypes,
@@ -13,8 +12,6 @@ import {
 import type { Device, CommandWithContext, DeviceContextAPI } from 'timeline-state-resolver-api'
 
 export type AbstractCommandWithContext = CommandWithContext<string, string>
-
-export type DeviceOptionsAbstractInternal = DeviceOptionsAbstract
 
 export type AbstractDeviceState = Timeline.TimelineState<TSRTimelineContent>
 
