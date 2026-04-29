@@ -199,6 +199,10 @@ export class CasparCGDevice extends DeviceWithState<State, CasparCGDeviceTypes, 
 				})
 		})
 
+		this._ccg.on('error', (e) => {
+			this.emit('error', 'CasparCG connection error', e)
+		})
+
 		this._ccg.on('disconnect', () => {
 			this._connected = false
 			this._connectionChanged()
