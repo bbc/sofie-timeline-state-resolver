@@ -64,6 +64,8 @@ exports[`index imports 1`] = `
   "PanasonicPTZActions",
   "PanasonicPTZStatusCode",
   "PanasonicPTZStatusMessages",
+  "PharosStatusCode",
+  "PharosStatusMessages",
   "QuantelActions",
   "QuantelControlMode",
   "QuantelTransitionType",
