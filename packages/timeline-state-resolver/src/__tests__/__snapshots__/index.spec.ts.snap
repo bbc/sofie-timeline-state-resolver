@@ -135,6 +135,8 @@ exports[`index imports 1`] = `
   "VIZMSETransitionType",
   "VMixCommand",
   "VMixInputType",
+  "VMixStatusCode",
+  "VMixStatusMessages",
   "VMixTransitionType",
   "VideoFormat",
   "ViscaOverIPActions",
