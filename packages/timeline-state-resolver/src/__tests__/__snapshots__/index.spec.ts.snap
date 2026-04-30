@@ -16,6 +16,8 @@ exports[`index imports 1`] = `
   "CasparCGActions",
   "CasparCGDevice",
   "CasparCGScaleMode",
+  "CasparCGStatusCode",
+  "CasparCGStatusMessages",
   "ChannelFormat",
   "Chroma",
   "Conductor",
