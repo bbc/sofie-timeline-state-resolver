@@ -30,6 +30,8 @@ exports[`index imports 1`] = `
   "HttpMethod",
   "HttpSendActions",
   "HyperdeckActions",
+  "HyperdeckStatusCode",
+  "HyperdeckStatusMessages",
   "KairosActions",
   "KairosMacroActiveState",
   "LawoDeviceMode",
