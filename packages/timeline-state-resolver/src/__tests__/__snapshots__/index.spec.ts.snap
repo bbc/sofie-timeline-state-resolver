@@ -102,6 +102,8 @@ exports[`index imports 1`] = `
   "StatusCode",
   "TcpSendActions",
   "TelemetricsDevice",
+  "TelemetricsStatusCode",
+  "TelemetricsStatusMessages",
   "Timeline",
   "TimelineContentTypeAtem",
   "TimelineContentTypeCasparCg",
