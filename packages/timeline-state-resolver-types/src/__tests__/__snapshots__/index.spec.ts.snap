@@ -62,6 +62,8 @@ exports[`index imports 1`] = `
   "OSCValueType",
   "OgrafActions",
   "PanasonicPTZActions",
+  "PanasonicPTZStatusCode",
+  "PanasonicPTZStatusMessages",
   "QuantelActions",
   "QuantelControlMode",
   "QuantelTransitionType",
