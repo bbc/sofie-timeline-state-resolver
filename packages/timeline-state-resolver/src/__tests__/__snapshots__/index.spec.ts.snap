@@ -87,6 +87,8 @@ exports[`index imports 1`] = `
   "QuantelStatusMessages",
   "QuantelTransitionType",
   "SendMode",
+  "ShotokuStatusCode",
+  "ShotokuStatusMessages",
   "ShotokuTransitionType",
   "SisyfosActions",
   "SlotId",
