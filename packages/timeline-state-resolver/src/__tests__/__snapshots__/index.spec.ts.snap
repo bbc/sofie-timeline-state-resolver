@@ -145,6 +145,8 @@ exports[`index imports 1`] = `
   "VizMSEStatusCode",
   "VizMSEStatusMessages",
   "VmixActions",
+  "WebSocketClientStatusCode",
+  "WebSocketClientStatusMessages",
   "WebsocketClientActions",
   "fillStateFromDatastore",
   "interpolateTemplateString",
