@@ -80,6 +80,8 @@ exports[`index imports 1`] = `
   "SlotId",
   "SlotStatus",
   "SofieChefActions",
+  "SofieChefStatusCode",
+  "SofieChefStatusMessages",
   "StatusCode",
   "TcpSendActions",
   "Timeline",

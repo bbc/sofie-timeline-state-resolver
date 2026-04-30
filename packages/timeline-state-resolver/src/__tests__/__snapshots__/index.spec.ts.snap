@@ -97,6 +97,8 @@ exports[`index imports 1`] = `
   "SlotStatus",
   "SofieChefActions",
   "SofieChefDevice",
+  "SofieChefStatusCode",
+  "SofieChefStatusMessages",
   "StatusCode",
   "TcpSendActions",
   "TelemetricsDevice",
