@@ -68,6 +68,8 @@ exports[`index imports 1`] = `
   "OBSStatusCode",
   "OBSStatusMessages",
   "OSCDeviceType",
+  "OSCStatusCode",
+  "OSCStatusMessages",
   "OSCValueType",
   "OgrafActions",
   "OscDevice",
