@@ -35,6 +35,8 @@ exports[`index imports 1`] = `
   "KairosActions",
   "KairosMacroActiveState",
   "LawoDeviceMode",
+  "LawoStatusCode",
+  "LawoStatusMessages",
   "MappingAtemType",
   "MappingCasparCGType",
   "MappingHyperdeckType",

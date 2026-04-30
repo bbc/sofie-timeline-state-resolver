@@ -44,6 +44,8 @@ exports[`index imports 1`] = `
   "KairosMacroActiveState",
   "LOOKAHEADTIME",
   "LawoDeviceMode",
+  "LawoStatusCode",
+  "LawoStatusMessages",
   "MINTIMEUNIT",
   "MINTRIGGERTIME",
   "MappingAtemType",
