@@ -91,6 +91,8 @@ exports[`index imports 1`] = `
   "ShotokuStatusMessages",
   "ShotokuTransitionType",
   "SisyfosActions",
+  "SisyfosStatusCode",
+  "SisyfosStatusMessages",
   "SlotId",
   "SlotStatus",
   "SofieChefActions",
