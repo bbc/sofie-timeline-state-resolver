@@ -65,6 +65,8 @@ exports[`index imports 1`] = `
   "MappingVmixType",
   "MediaSourceType",
   "MultiOSCDeviceType",
+  "OBSStatusCode",
+  "OBSStatusMessages",
   "OSCDeviceType",
   "OSCValueType",
   "OgrafActions",
