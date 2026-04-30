@@ -68,6 +68,8 @@ exports[`index imports 1`] = `
   "PharosStatusMessages",
   "QuantelActions",
   "QuantelControlMode",
+  "QuantelStatusCode",
+  "QuantelStatusMessages",
   "QuantelTransitionType",
   "ShotokuTransitionType",
   "SisyfosActions",
