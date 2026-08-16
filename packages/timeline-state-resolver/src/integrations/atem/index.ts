@@ -16,6 +16,7 @@ import {
 import { AtemState, State as DeviceState } from 'atem-state'
 import {
 	BasicAtem,
+	AtemConnectionStatus,
 	Commands as AtemCommands,
 	AtemState as NativeAtemState,
 	AtemStateUtil,
@@ -53,7 +54,6 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 
 	private readonly _atem = new BasicAtem()
 	private _protocolVersion = ConnectionEnums.ProtocolVersion.V8_1_1
-	private _connected = false // note: ideally this should be replaced by this._atem.connected
 	private _host = ''
 
 	private _atemStatus: {
@@ -72,7 +72,6 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 	 */
 	async init(options: AtemOptions): Promise<boolean> {
 		this._atem.on('disconnected', () => {
-			this._connected = false
 			this._connectionChanged()
 		})
 		this._atem.on('error', (e) => this.context.logger.error('Atem', new Error(e)))
@@ -88,8 +87,6 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 		})
 
 		this._atem.on('connected', () => {
-			this._connected = true
-
 			this._connectionChanged()
 
 			if (this._atem.state) {
@@ -138,7 +135,7 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 	}
 
 	get connected(): boolean {
-		return this._connected
+		return this._atem.status === AtemConnectionStatus.CONNECTED
 	}
 
 	/**
@@ -161,7 +158,7 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 	public getStatus(): DeviceStatusInput {
 		const statusDetails: AtemStatusDetail[] = []
 
-		if (!this._connected) {
+		if (!this.connected) {
 			statusDetails.push(
 				createAtemStatusDetail(AtemStatusCode.DISCONNECTED, {
 					deviceName: this.context.deviceName,
@@ -207,7 +204,7 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 		mappings: Mappings
 	): Array<AtemCommandWithContext> {
 		// Skip diffing if not connected, a resolverReset will be fired upon reconnection
-		if (!this._connected) return []
+		if (!this.connected) return []
 
 		// Make sure there is something to diff against
 		oldAtemState = oldAtemState ?? this._atem.state ?? AtemStateUtil.Create()
@@ -237,7 +234,7 @@ export class AtemDevice implements Device<AtemDeviceTypes, AtemDeviceState, Atem
 		this.context.logger.debug(cwc)
 
 		// Skip attempting send if not connected
-		if (!this._connected) return
+		if (!this.connected) return
 
 		try {
 			await this._atem.sendCommands(command)

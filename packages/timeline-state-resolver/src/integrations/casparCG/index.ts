@@ -89,6 +89,8 @@ export class CasparCGDevice extends DeviceWithState<State, CasparCGDeviceTypes, 
 	private _doOnTime: DoOnTime
 	private initOptions?: CasparCGOptions
 	private _connected = false
+	/** Incremented on every connect/disconnect, so that stale async work can detect it is no longer relevant */
+	private _connectionGeneration = 0
 	private _queueOverflow = false
 	private _transitionHandler: InternalTransitionHandler = new InternalTransitionHandler()
 	private _retryTimeout: NodeJS.Timeout | undefined
@@ -125,6 +127,11 @@ export class CasparCGDevice extends DeviceWithState<State, CasparCGDeviceTypes, 
 		let firstConnect = true
 
 		this._ccg.on('connect', () => {
+			this._connected = true
+			this._connectionChanged()
+
+			const generation = ++this._connectionGeneration
+
 			Promise.resolve()
 				.then(async () => {
 					// Should not happen: this callback is registered on _ccg, so it must exist
@@ -183,9 +190,7 @@ export class CasparCGDevice extends DeviceWithState<State, CasparCGDeviceTypes, 
 					return true
 				})
 				.then((doResync) => {
-					// Finally we can report it as connected
-					this._connected = true
-					this._connectionChanged()
+					if (generation !== this._connectionGeneration) return // the connection has changed since, so this result is stale
 
 					if (firstConnect || doResync) {
 						firstConnect = false
@@ -196,9 +201,6 @@ export class CasparCGDevice extends DeviceWithState<State, CasparCGDeviceTypes, 
 				})
 				.catch((e) => {
 					this.emit('error', 'connect state resync failed', e)
-					// Some unknwon error occured, report the connection as failed
-					this._connected = false
-					this._connectionChanged()
 				})
 		})
 
@@ -207,6 +209,7 @@ export class CasparCGDevice extends DeviceWithState<State, CasparCGDeviceTypes, 
 		})
 
 		this._ccg.on('disconnect', () => {
+			this._connectionGeneration++
 			this._connected = false
 			this._connectionChanged()
 		})

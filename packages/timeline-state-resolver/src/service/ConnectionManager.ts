@@ -1,4 +1,10 @@
-import { DeviceOptionsAny, DeviceOptionsBase, DeviceType } from 'timeline-state-resolver-types'
+import {
+	DeviceOptionsAny,
+	DeviceOptionsBase,
+	DeviceStatus,
+	DeviceType,
+	StatusCode,
+} from 'timeline-state-resolver-types'
 import { BaseRemoteDeviceIntegration, RemoteDeviceInstance } from './remoteDeviceInstance.js'
 import _ from 'underscore'
 import { ThreadedClassConfig } from 'threadedclass'
@@ -9,7 +15,7 @@ import { DeviceOptionsVizMSEInternal, VizMSEDevice } from '../integrations/vizMS
 import { ImplementedServiceDeviceTypes } from './devices.js'
 import { EventEmitter } from 'node:events'
 import { DeviceInstanceEvents } from './DeviceInstance.js'
-import { deferAsync } from '../lib.js'
+import { deferAsync, normaliseDeviceStatus } from '../lib.js'
 import { DevicesRegistry } from './devicesRegistry.js'
 
 interface Operation {
@@ -233,6 +239,7 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 
 			if (!container) {
 				this.emit('warning', 'Failed to create container for ' + id)
+				this._emitBadStatus(id, 'Failed to create container')
 				return
 			}
 
@@ -242,6 +249,7 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 			container.onChildClose = () => {
 				this.emit('error', 'Connection ' + id + ' closed')
 				this._connections.delete(id)
+				this._emitBadStatus(id, 'Connection closed')
 				this.emit('connectionRemoved', id)
 
 				container
@@ -257,13 +265,15 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 
 			// trigger connection init
 			this._handleConnectionInitialisation(id, container)
-				.then(() => {
+				.then(async () => {
 					this._connectionAttempts.delete(id)
 					this.emit('connectionInitialised', id)
+					await this._reconcileConnectionStatus(id, container)
 				})
 				.catch((e) => {
 					this.emit('error', 'Connection ' + id + ' failed to initialise', e)
 					this._connections.delete(id)
+					this._emitBadStatus(id, 'Failed to initialise: ' + e)
 					this.emit('connectionRemoved', id)
 
 					container
@@ -275,6 +285,7 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 				})
 		} catch (e) {
 			this.emit('warning', 'Failed to create connection for ' + id + ': ' + e)
+			this._emitBadStatus(id, 'Failed to create connection: ' + e)
 		}
 	}
 
@@ -283,6 +294,7 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 		if (!connection) return Promise.resolve() // already removed / never existed
 
 		this._connections.delete(id)
+		this._emitBadStatus(id, 'Connection removed')
 		this.emit('connectionRemoved', id)
 
 		return new Promise((resolve) =>
@@ -342,16 +354,44 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 		this.emit('info', `Connection ${id} (${container.instanceId}) initialized!`)
 	}
 
+	/** Emit a synthetic BAD status, for the teardown paths where the device itself can no longer report one. */
+	private _emitBadStatus(id: string, message: string): void {
+		const status: DeviceStatus = {
+			statusCode: StatusCode.BAD,
+			messages: [message],
+			statusDetails: [{ message }],
+			active: false,
+		}
+		this.emit('connectionEvent:connectionChanged', id, status)
+	}
+
+	/** Re-emit the device's actual status, in case a status change was missed while the connection was starting up. */
+	private async _reconcileConnectionStatus(
+		id: string,
+		container: BaseRemoteDeviceIntegration<DeviceOptionsAny>
+	): Promise<void> {
+		try {
+			const status = await container.device.getStatus()
+			const active = 'active' in status ? Boolean(status.active) : false
+			this.emit('connectionEvent:connectionChanged', id, normaliseDeviceStatus(status, active))
+		} catch (e) {
+			this.emit('warning', 'Failed to read status for ' + id + ': ' + e)
+		}
+	}
+
 	private async _setupDeviceListeners(
 		id: string,
 		container: BaseRemoteDeviceIntegration<DeviceOptionsAny>
 	): Promise<void> {
+		const listeners: Promise<unknown>[] = []
 		const passEvent = <T extends keyof DeviceInstanceEvents>(ev: T) => {
 			const evHandler: any = (...args: DeviceInstanceEvents[T]) =>
 				this.emit(('connectionEvent:' + ev) as `connectionEvent:${keyof DeviceInstanceEvents}`, id, ...args)
-			container.device
-				.on(ev, evHandler)
-				.catch((e) => this.emit('error', 'Failed to attach listener for device: ' + id + ' ' + ev, e))
+			listeners.push(
+				container.device
+					.on(ev, evHandler)
+					.catch((e) => this.emit('error', 'Failed to attach listener for device: ' + id + ' ' + ev, e))
+			)
 		}
 
 		passEvent('info')
@@ -370,6 +410,8 @@ export class ConnectionManager extends EventEmitter<ConnectionManagerEvents> {
 		passEvent('clearMediaObjects')
 		passEvent('timeTrace')
 		passEvent('stateEvent')
+
+		await Promise.all(listeners)
 	}
 }
 

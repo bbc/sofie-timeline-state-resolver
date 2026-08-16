@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import { actionNotFoundMessage, cloneDeep } from '../lib.js'
+import { actionNotFoundMessage, cloneDeep, normaliseDeviceStatus } from '../lib.js'
 import type {
 	FinishedTrace,
 	DeviceEntry,
@@ -27,30 +27,6 @@ import { StateTracker } from './stateTracker.js'
 type Config = DeviceOptionsAny
 type DeviceState = object
 type AddressState = any
-
-/** Normalise a DeviceStatusInput (from device.getStatus()) to a full DeviceStatus.
- *
- *  This is done for backwards compatibility, so that devices inplemented in plugins that haven't
- *  been updated to the new DeviceStatus format will still work.
- */
-function normaliseDeviceStatus(input: DeviceStatusInput, active: boolean): DeviceStatus {
-	if ('statusDetails' in input) {
-		// New device, with statusDetails
-		return {
-			statusCode: input.statusCode,
-			messages: input.statusDetails.map((d) => d.message),
-			statusDetails: input.statusDetails,
-			active,
-		}
-	}
-	// Old style device, with only messages
-	return {
-		statusCode: input.statusCode,
-		messages: input.messages,
-		statusDetails: input.messages.map((message) => ({ message })),
-		active,
-	}
-}
 
 export interface DeviceDetails {
 	deviceId: string

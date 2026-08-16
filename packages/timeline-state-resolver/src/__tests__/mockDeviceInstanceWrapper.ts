@@ -5,6 +5,7 @@ import {
 	Mappings,
 	DeviceStatus,
 	DeviceOptionsAny,
+	StatusCode,
 } from 'timeline-state-resolver-types'
 import type { DeviceEvents, DeviceTimelineState } from 'timeline-state-resolver-api'
 import type { DeviceInstanceWrapper, DeviceDetails } from '../service/DeviceInstance.js'
@@ -100,7 +101,7 @@ export class MockDeviceInstanceWrapper
 		throw new Error('Method not implemented.')
 	})
 	getStatus = jest.fn((): DeviceStatus => {
-		throw new Error('Method not implemented.')
+		return { statusCode: StatusCode.GOOD, messages: [], statusDetails: [], active: false }
 	})
 	setDebugLogging = jest.fn((_value: boolean): void => {
 		throw new Error('Method not implemented.')

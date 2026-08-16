@@ -6,10 +6,36 @@ import {
 	TSRTimelineObjProps,
 	TSRTimelineContent,
 	Timeline,
+	type DeviceStatus,
+	type DeviceStatusInput,
 } from 'timeline-state-resolver-types'
 import { PartialDeep } from 'type-fest'
 import deepmerge from 'deepmerge'
 import type { DeviceTimelineStateObject, FinishedTrace, Trace } from 'timeline-state-resolver-api'
+
+/** Normalise a DeviceStatusInput (from device.getStatus()) to a full DeviceStatus.
+ *
+ *  This is done for backwards compatibility, so that devices inplemented in plugins that haven't
+ *  been updated to the new DeviceStatus format will still work.
+ */
+export function normaliseDeviceStatus(input: DeviceStatusInput, active: boolean): DeviceStatus {
+	if ('statusDetails' in input) {
+		// New device, with statusDetails
+		return {
+			statusCode: input.statusCode,
+			messages: input.statusDetails.map((d) => d.message),
+			statusDetails: input.statusDetails,
+			active,
+		}
+	}
+	// Old style device, with only messages
+	return {
+		statusCode: input.statusCode,
+		messages: input.messages,
+		statusDetails: input.messages.map((message) => ({ message })),
+		active,
+	}
+}
 
 export function literal<T>(o: T) {
 	return o
